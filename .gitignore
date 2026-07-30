@@ -154,3 +154,7 @@ cython_debug/
 # OS
 .DS_Store
 Thumbs.db
+
+# training
+./training/.venv
+./training/nemotron_ft/checkpoints/*

@@ -48,6 +48,19 @@ class LLMClients:
     def client(self) -> AsyncOpenAI:
         return self._client
 
+    def _extra_body(self) -> dict[str, Any]:
+        """Vendor options passed straight through to vLLM.
+
+        Suppresses Qwen3's reasoning trace unless explicitly enabled. Measured
+        on a two-operation plan: 83s with thinking on, 5.4s off, identical
+        output. The tool catalogue already constrains what the planner may
+        emit, so the reasoning tokens buy nothing and the latency is the
+        difference between scoring and timing out.
+        """
+        if self.settings.enable_thinking:
+            return {}
+        return {"chat_template_kwargs": {"enable_thinking": False}}
+
     async def aclose(self) -> None:
         await self._client.close()
         if not self._http.is_closed:
@@ -65,6 +78,7 @@ class LLMClients:
             "messages": messages,
             "temperature": self.settings.temperature_brain,
             "max_tokens": self.settings.max_tokens_brain,
+            "extra_body": self._extra_body(),
         }
         if tools:
             kwargs["tools"] = tools
@@ -89,6 +103,7 @@ class LLMClients:
                 prompt=full,
                 temperature=self.settings.temperature_synthesis,
                 max_tokens=self.settings.max_tokens_synthesis,
+                extra_body=self._extra_body(),
             )
             return (resp.choices[0].text or "").strip()
 
@@ -101,6 +116,7 @@ class LLMClients:
             messages=messages,
             temperature=self.settings.temperature_synthesis,
             max_tokens=self.settings.max_tokens_synthesis,
+            extra_body=self._extra_body(),
         )
         content = resp.choices[0].message.content
         return (content or "").strip()

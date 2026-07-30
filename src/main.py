@@ -18,6 +18,7 @@ from src.config import Settings, get_settings
 from src.graph.workflow import QueryWorkflow
 from src.llm.client import LLMClients
 from src.models import HealthResponse, QueryRequest, QueryResponse, ToolTraceItem
+from src.tfql import Store
 from src.tools import register_all_tools, registry
 
 logging.basicConfig(
@@ -32,6 +33,8 @@ class AppState:
     llm: LLMClients
     workflow: QueryWorkflow
     query_semaphore: asyncio.Semaphore
+    store: Store | None = None
+    ready: bool = False
 
 
 state = AppState()
@@ -41,7 +44,24 @@ state = AppState()
 async def lifespan(app: FastAPI):
     settings = get_settings()
     state.settings = settings
-    register_all_tools(registry, default_timeout=settings.default_tool_timeout_seconds)
+
+    # Load the warehouse and precompute every in-memory series before serving.
+    # Requests run against a 60-second clock; startup does not, so all of the
+    # expensive work belongs here. /health stays 503 until this finishes.
+    state.store = await asyncio.to_thread(Store.build)
+    logger.info(
+        "TFQL store warm | rba=%s | asx=%s (%s tickers) | afr=%s",
+        state.store.rba.coverage.describe(),
+        state.store.asx_coverage().describe(),
+        len(state.store.tickers),
+        state.store.afr_coverage.describe(),
+    )
+
+    register_all_tools(
+        registry,
+        default_timeout=settings.default_tool_timeout_seconds,
+        store=state.store,
+    )
     state.llm = LLMClients(settings)
     state.workflow = QueryWorkflow(settings, state.llm, registry)
     # Bound in-flight /query work while still allowing ≥3 concurrent requests.
@@ -55,8 +75,12 @@ async def lifespan(app: FastAPI):
         settings.max_agent_steps,
         settings.max_concurrent_queries,
     )
+    state.ready = True
     yield
+    state.ready = False
     await state.llm.aclose()
+    if state.store is not None:
+        state.store.close()
     logger.info("Shutdown complete")
 
 
@@ -69,6 +93,15 @@ app = FastAPI(
 
 @app.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
+    """Readiness, not liveness.
+
+    The evaluation harness treats this as a hard gate and starts sending
+    questions the moment it sees 200. Reporting ok while the warehouse is still
+    loading would hand it a server that cannot answer yet, so this stays 503
+    until startup has completed.
+    """
+    if not state.ready:
+        raise HTTPException(status_code=503, detail="warming up")
     return HealthResponse(status="ok")
 
 

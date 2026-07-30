@@ -53,6 +53,13 @@ class Settings(BaseModel):
     request_timeout_seconds: float = 60.0
     temperature_brain: float = 0.1
     temperature_synthesis: float = 0.2
+
+    # Qwen3 emits a reasoning trace by default. Measured on a two-operation
+    # plan: 83s with thinking on vs 5.4s off, for an identical plan -- the
+    # operation catalogue already constrains the output space, so the planner
+    # never needs to reason about arithmetic. Left on, a single question
+    # breaches the 60s scoring cliff on planning alone.
+    enable_thinking: bool = False
     max_tokens_brain: int = 4096
     max_tokens_synthesis: int = 8192
 
@@ -79,6 +86,13 @@ class Settings(BaseModel):
     def _coerce_float(cls, v: Any) -> Any:
         if isinstance(v, str) and v.strip():
             return float(v)
+        return v
+
+    @field_validator("enable_thinking", mode="before")
+    @classmethod
+    def _coerce_bool(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            return v.strip().lower() in {"1", "true", "yes", "on"}
         return v
 
     @field_validator("domain_predict_mode")
@@ -143,6 +157,7 @@ def get_settings(config_path: str | None = None) -> Settings:
         "max_agent_steps": os.environ.get("MAX_AGENT_STEPS"),
         "domain_ft_model": os.environ.get("DOMAIN_FT_MODEL"),
         "domain_predict_mode": os.environ.get("DOMAIN_PREDICT_MODE"),
+        "enable_thinking": os.environ.get("ENABLE_THINKING"),
     }
     for key, value in env_overrides.items():
         if value is not None and value != "":
