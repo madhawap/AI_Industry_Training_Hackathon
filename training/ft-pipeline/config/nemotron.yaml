@@ -1,0 +1,83 @@
+# Real LoRA run against the hackathon model family.
+#
+# model_id is the ONE line to change between the small stand-in used for fast
+# iteration and the actual hackathon target:
+#
+#   unsloth/Llama-3.2-3B-Instruct          - same Llama-3 architecture and chat
+#                                            template, ~6 GB in bf16, fits
+#                                            alongside other jobs on one GPU
+#   nvidia/Llama-3.1-Nemotron-Nano-8B-v1   - the hackathon model itself
+#                                            (ungated), ~16 GB in bf16
+#
+# Everything else is identical, which is the point: the pipeline does not care.
+name: nemotron
+run_id: auto
+seed: 0
+
+adapter:
+  name: stub                    # replace with a real adapter when data exists
+  n: 200
+  seed: 0
+
+renderer:
+  name: chat
+  system_prompt: null           # UNDECIDED — must match serving exactly
+  user_template: |-
+    QUESTION: {question}
+    FACTS: {context}
+  strict: true
+
+curate:
+  group_key: meta.group_key
+  splits: [0.8, 0.1, 0.1]
+
+render:
+  measure_with_tokenizer: true  # real tokenizer -> real length percentiles
+
+train:
+  backend: peft
+  model_id: unsloth/Llama-3.2-3B-Instruct
+  dtype: bfloat16
+  device_map: auto
+  seq_len: 512                  # set from render's length_report, not guessed
+  lora:
+    rank: 32                    # organisers' reference baseline
+    alpha: 64
+    dropout: 0.05
+    target_modules: all-linear
+    use_dora: true               # DoRA — consistently >= vanilla LoRA at the same cost
+    use_rslora: true              # rsLoRA — safe to use this rank without retuning alpha
+  optim:
+    steps: 100                  # reference baseline
+    lr: 5.0e-5                  # 1e-4 is documented to spike after warmup
+    warmup: 10
+    micro_batch: 1
+    grad_accum: 8               # effective batch 8
+    scheduler: cosine
+    neftune_noise_alpha: 5.0    # free instruction-tuning bump; null disables it
+  checkpoint_every: 20          # step-20 checkpoint is worth evaluating
+
+predict:
+  split: val
+  include_checkpoints: true
+  max_new_tokens: 96
+  temperature: 0.0              # deterministic — comparisons must be fair
+  batch_size: 8
+  limit: null
+
+evaluate:
+  # component_match is the sharp signal; reference_overlap (token-F1/ROUGE-L/BLEU)
+  # is the fallback that still scores something once `eval.components` is missing.
+  graders: [component_match, format_health, exact_match, reference_overlap]
+  component_match: {numeric_tolerance: 0.0, date_equivalence: true}
+  format_health: {max_chars: 400}
+  # llm_judge: {provider: anthropic, model: claude-sonnet-5}   # opt-in — needs an API key + network
+
+select:
+  policy: guardrailed
+  primary: component_recall
+  tie_tolerance: 0.005
+  prefer_earliest_within_tolerance: true
+  guardrails:
+    hallucinated_number_rate: {max: 0.05}
+    preamble_rate: {max: 0.10}
