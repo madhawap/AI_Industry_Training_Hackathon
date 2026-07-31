@@ -1,0 +1,64 @@
+{
+  "stage": "curate",
+  "run_id": "generated_large",
+  "timestamp": "2026-07-31T15:43:32",
+  "git_revision": "565af4a",
+  "inputs": {
+    "canonical": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/ingest/canonical.jsonl",
+    "splits": [
+      0.7,
+      0.15,
+      0.15
+    ],
+    "group_key": "meta.group_key"
+  },
+  "outputs": {
+    "train": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/curate/train.jsonl",
+      "n": 672,
+      "n_groups": 22,
+      "sha": "c52710b2be03c892"
+    },
+    "val": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/curate/val.jsonl",
+      "n": 176,
+      "n_groups": 4,
+      "sha": "661ba0393f922c87"
+    },
+    "test": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/curate/test.jsonl",
+      "n": 91,
+      "n_groups": 6,
+      "sha": "b902b50d5919e5a0"
+    }
+  },
+  "deduped_dropped": 0,
+  "n_groups": 32,
+  "summary": {
+    "train": {
+      "n": 672,
+      "groups": 22,
+      "tasks": {
+        "extrapolation": 71,
+        "unanswerable": 60,
+        "answerable": 541
+      }
+    },
+    "val": {
+      "n": 176,
+      "groups": 4,
+      "tasks": {
+        "answerable": 172,
+        "unanswerable": 4
+      }
+    },
+    "test": {
+      "n": 91,
+      "groups": 6,
+      "tasks": {
+        "answerable": 84,
+        "unanswerable": 7
+      }
+    }
+  }
+}

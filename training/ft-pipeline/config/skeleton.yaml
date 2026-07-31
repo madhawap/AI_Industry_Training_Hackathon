@@ -1,0 +1,55 @@
+# Walking skeleton — proves all eight stages end to end with NO real data,
+# NO decided contract, and NO GPU. This is the config you run to check the
+# pipeline still works after any change.
+name: skeleton
+run_id: auto
+seed: 0
+
+adapter:
+  name: stub          # synthetic records; swap for a real adapter later
+  n: 200
+  seed: 0
+
+renderer:
+  name: chat
+  system_prompt: null           # UNDECIDED — the serving system prompt
+  user_template: |-
+    QUESTION: {question}
+    FACTS: {context}
+  strict: true
+
+curate:
+  group_key: meta.group_key     # split by group, never by row
+  splits: [0.8, 0.1, 0.1]
+
+render:
+  measure_with_tokenizer: false # no model download needed for the skeleton
+
+train:
+  backend: noop                 # no GPU; swap to peft for real training
+  model_id: null
+  seq_len: 512
+  lora: {rank: 32, alpha: 64, dropout: 0.05}
+  optim: {steps: 40, lr: 5.0e-5, warmup: 4, micro_batch: 1, grad_accum: 8}
+  checkpoint_every: 10
+
+predict:
+  split: val
+  include_checkpoints: true
+  max_new_tokens: 96
+  temperature: 0.0
+  batch_size: 8
+
+evaluate:
+  graders: [component_match, format_health, exact_match]
+  component_match: {numeric_tolerance: 0.0, date_equivalence: true}
+  format_health: {max_chars: 400}
+
+select:
+  policy: guardrailed
+  primary: component_recall
+  tie_tolerance: 0.005
+  prefer_earliest_within_tolerance: true
+  guardrails:
+    hallucinated_number_rate: {max: 0.05}
+    preamble_rate: {max: 0.10}

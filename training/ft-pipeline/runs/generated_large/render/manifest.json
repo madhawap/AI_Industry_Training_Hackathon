@@ -1,0 +1,74 @@
+{
+  "stage": "render",
+  "run_id": "generated_large",
+  "timestamp": "2026-07-31T15:43:36",
+  "git_revision": "565af4a",
+  "inputs": {
+    "renderer": "chat",
+    "renderer_cfg": {
+      "name": "chat",
+      "system_prompt": null,
+      "user_template": "QUESTION: {prompt}\nTOOL_TRACE: {tool_trace}",
+      "strict": true
+    },
+    "tokenizer": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1"
+  },
+  "outputs": {
+    "train": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/render/train.jsonl",
+      "n": 672,
+      "sha": "ee4b2ca5d1499211"
+    },
+    "val": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/render/val.jsonl",
+      "n": 176,
+      "sha": "97715d03e5b6e3e8"
+    },
+    "test": {
+      "path": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/render/test.jsonl",
+      "n": 91,
+      "sha": "e7753c5a265798be"
+    }
+  },
+  "length_report": {
+    "train": {
+      "unit": "tokens",
+      "total": {
+        "p50": 297,
+        "p95": 831,
+        "max": 1247
+      },
+      "prompt": {
+        "p50": 275,
+        "p95": 771,
+        "max": 1213
+      }
+    },
+    "val": {
+      "unit": "tokens",
+      "total": {
+        "p50": 329,
+        "p95": 1476,
+        "max": 1548
+      },
+      "prompt": {
+        "p50": 288,
+        "p95": 1443,
+        "max": 1515
+      }
+    },
+    "test": {
+      "unit": "tokens",
+      "total": {
+        "p50": 620,
+        "p95": 978,
+        "max": 1017
+      },
+      "prompt": {
+        "p50": 583,
+        "p95": 922,
+        "max": 953
+      }
+    }
+  }
+}

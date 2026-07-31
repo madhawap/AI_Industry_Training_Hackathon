@@ -1,3 +1,7 @@
+# Wombots
+
+![Team Logo](logo.jpeg)
+
 # Team Submission
 
 Use this folder as the root of your team's fully public GitHub repository. Private repositories and

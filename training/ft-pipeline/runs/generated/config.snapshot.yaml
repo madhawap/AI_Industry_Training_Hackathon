@@ -1,0 +1,118 @@
+{
+  "adapter": {
+    "eval_field": "required_facts",
+    "group_field": "template_family",
+    "input_fields": [
+      "prompt",
+      "tool_trace"
+    ],
+    "meta_fields": [
+      "difficulty",
+      "question_type"
+    ],
+    "name": "jsonl_generic",
+    "path": "../data/generated_questions.jsonl",
+    "target_field": "answer",
+    "task_field": "category"
+  },
+  "curate": {
+    "group_key": "meta.group_key",
+    "splits": [
+      0.7,
+      0.15,
+      0.15
+    ]
+  },
+  "evaluate": {
+    "breakdown_by": [
+      "difficulty",
+      "question_type"
+    ],
+    "component_match": {
+      "date_equivalence": true,
+      "numeric_tolerance": 0.0
+    },
+    "format_health": {
+      "max_chars": 600
+    },
+    "graders": [
+      "component_match",
+      "format_health",
+      "exact_match",
+      "reference_overlap",
+      "llm_judge"
+    ],
+    "llm_judge": {
+      "model": "claude-sonnet-5",
+      "provider": "anthropic"
+    }
+  },
+  "name": "generated",
+  "predict": {
+    "batch_size": 4,
+    "include_checkpoints": true,
+    "max_new_tokens": 128,
+    "split": "val",
+    "temperature": 0.0
+  },
+  "render": {
+    "measure_with_tokenizer": true
+  },
+  "renderer": {
+    "name": "chat",
+    "strict": true,
+    "system_prompt": null,
+    "user_template": "QUESTION: {prompt}\nTOOL_TRACE: {tool_trace}"
+  },
+  "run_id": "auto",
+  "seed": 2,
+  "select": {
+    "guardrails": {
+      "hallucinated_number_rate": {
+        "max": 0.05
+      },
+      "preamble_rate": {
+        "max": 0.1
+      }
+    },
+    "policy": "guardrailed",
+    "prefer_earliest_within_tolerance": true,
+    "primary": "component_recall",
+    "tie_tolerance": 0.005
+  },
+  "train": {
+    "backend": "peft",
+    "checkpoint_every": 20,
+    "device_map": {
+      "": 0
+    },
+    "dtype": "bfloat16",
+    "lora": {
+      "alpha": 64,
+      "dropout": 0.05,
+      "rank": 32,
+      "target_modules": "all-linear",
+      "use_dora": true,
+      "use_rslora": true
+    },
+    "loss": {
+      "fact_token_weight": 1.5,
+      "label_smoothing": 0.0,
+      "name": "masked_ce"
+    },
+    "model_id": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+    "optim": {
+      "grad_accum": 8,
+      "lr": 5e-05,
+      "micro_batch": 1,
+      "neftune_noise_alpha": 5.0,
+      "scheduler": "cosine",
+      "steps": 100,
+      "warmup": 10
+    },
+    "report_to": [
+      "tensorboard"
+    ],
+    "seq_len": 1792
+  }
+}

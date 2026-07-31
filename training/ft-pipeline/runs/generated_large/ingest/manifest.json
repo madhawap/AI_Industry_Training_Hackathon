@@ -1,0 +1,36 @@
+{
+  "stage": "ingest",
+  "run_id": "generated_large",
+  "timestamp": "2026-07-31T15:43:32",
+  "git_revision": "565af4a",
+  "inputs": {
+    "adapter": "jsonl_generic",
+    "adapter_cfg": {
+      "name": "jsonl_generic",
+      "path": "../data/generated_questions_large.jsonl",
+      "task_field": "category",
+      "target_field": "answer",
+      "input_fields": [
+        "prompt",
+        "tool_trace"
+      ],
+      "eval_field": "required_facts",
+      "group_field": "template_family",
+      "meta_fields": [
+        "difficulty",
+        "question_type"
+      ]
+    }
+  },
+  "outputs": {
+    "canonical": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated_large/ingest/canonical.jsonl",
+    "sha": "c8ebd01c76b11a64",
+    "n": 939
+  },
+  "tasks": {
+    "answerable": 797,
+    "unanswerable": 71,
+    "extrapolation": 71
+  },
+  "n_groups": 32
+}
