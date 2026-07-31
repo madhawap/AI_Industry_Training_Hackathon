@@ -79,12 +79,6 @@ train:
     target_modules: all-linear
     use_dora: true
     use_rslora: true
-    # PiSSA (Meng et al. 2024, https://huggingface.co/papers/2404.02948): initialises
-    # LoRA A/B from the base weight's principal singular vectors/values instead of
-    # the reference implementation's zero-init (B=0). Reported to converge faster and
-    # reach a better optimum at the same rank/cost -- relevant here since optim.steps
-    # is only 100. Falls back to `true` (zero-init) if you want the prior behaviour.
-    init_lora_weights: pissa
   optim:
     steps: 100                   # organisers' reference baseline (see config/nemotron.yaml)
     lr: 5.0e-5
