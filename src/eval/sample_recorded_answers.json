@@ -1,0 +1,154 @@
+[
+  {
+    "id": "afr-busiest-day-2021",
+    "question": "Which single day in 2021 had the most AFR articles published, and how many?",
+    "answer": "The busiest day was 2021-06-25, with 244 articles published.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "afr_busiest_day",
+        "args": {
+          "start_date": "2021-01-01",
+          "end_date": "2021-12-31"
+        },
+        "result": "The busiest day was 2021-06-25, with 244 articles published."
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2025-01-01",
+    "question": "What was the RBA cash rate target in effect on 2025-01-01?",
+    "answer": "As of 2025-01-01 the RBA cash-rate target was 4.35% (this rate was set effective 2024-12-11).",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "rba_rate_at_date",
+        "args": {
+          "as_of": "2025-01-01"
+        },
+        "result": "As of 2025-01-01, the RBA cash-rate target was 4.35%, set effective 2024-12-11."
+      }
+    ]
+  },
+  {
+    "id": "rba-largest-hikes-cycle",
+    "question": "Which tightening cycle (consecutive hikes with no intervening cuts) had the most hikes, and what was the cumulative increase?",
+    "answer": "The longest tightening cycle ran from 2022-05-04 to 2023-11-08. It comprised 13 hike(s) for a cumulative change of +4.25 percentage points. The target rate immediately before the first hike was 0.1%, and the rate reached by 2023-11-08 was 4.35%.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "rba_largest_cycle",
+        "args": {
+          "direction": "hikes"
+        },
+        "result": "The largest hikes cycle ran from 2022-05-04 to 2023-11-08 and comprised 13 hike(s), for a cumulative change of +4.25 percentage points. The target rate immediately before the first hike was 0.1%, and the rate reached by 2023-11-08 was 4.35%."
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-gigafactory",
+    "question": "How many AFR articles mention 'gigafactory' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "33 articles mention \"gigafactory\" (matched as a whole word) in their headline, subhead, intro, or body text.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "afr_pattern_count",
+        "args": {
+          "pattern": "gigafactory"
+        },
+        "result": "33 articles mention 'gigafactory' in their headline, subhead, intro, or body text."
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Rio",
+    "question": "What were Rio's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "Rio\u2019s highest closing price was $95.98 on 2021-08-04, and its lowest closing price was $18.80 on 2016-02-03.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "asx_price_extremes",
+        "args": {
+          "ticker": "RIO"
+        },
+        "result": "RIO's highest close was $95.98 on 2021-08-04, and its lowest close was $18.80 on 2016-02-03 (data spans 2015-01-02 to 2021-12-30)."
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-IAG",
+    "question": "What were IAG's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "I called the ASX price-extremes tool for IAG. The tool returned:\n- Highest closing price: $6.97 on 2019-07-25\n- Lowest closing price: $3.13 on 2015-09-29",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "asx_price_extremes",
+        "args": {
+          "ticker": "IAG"
+        },
+        "result": "IAG's highest close was $6.97 on 2019-07-25, and its lowest close was $3.13 on 2015-09-29 (data spans 2015-01-02 to 2021-12-30)."
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-CBA",
+    "question": "What were CBA's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "CBA's highest closing price: $93.64 on 2021-11-08.  \nCBA's lowest closing price: $43.83 on 2020-03-23.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "asx_price_extremes",
+        "args": {
+          "ticker": "CBA"
+        },
+        "result": "CBA's highest close was $93.64 on 2021-11-08, and its lowest close was $43.83 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30)."
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2015-01-01-2016-12-31",
+    "question": "Between 2015-01-01 and 2016-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "I called the RBA changes tool. Between 2015-01-01 and 2016-12-31 the RBA changed the cash rate 4 times: 0 increases and 4 decreases (net change -1.00 percentage point).",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "rba_changes_in_period",
+        "args": {
+          "start_date": "2015-01-01",
+          "end_date": "2016-12-31"
+        },
+        "result": "Between 2015-01-01 and 2016-12-31, the RBA changed the cash rate 4 time(s): 0 increase(s) and 4 decrease(s), for a net change of -1.00 percentage points."
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2023-01-01",
+    "question": "What was the RBA cash rate target in effect on 2023-01-01?",
+    "answer": "As of 2023-01-01 the RBA cash-rate target was 3.1%, set effective 2022-12-07.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "rba_rate_at_date",
+        "args": {
+          "as_of": "2023-01-01"
+        },
+        "result": "As of 2023-01-01, the RBA cash-rate target was 3.1%, set effective 2022-12-07."
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-Westpac",
+    "question": "How many AFR articles mention 'Westpac' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "11699 articles mention \"Westpac\" (matched as a whole word, case-insensitive, counted once per article) in their headline, subhead, intro, or body across the AFR dataset.",
+    "steps": 1,
+    "tool_trace": [
+      {
+        "tool": "afr_pattern_count",
+        "args": {
+          "pattern": "Westpac"
+        },
+        "result": "11699 articles mention 'Westpac' in their headline, subhead, intro, or body text."
+      }
+    ]
+  }
+]

@@ -1,0 +1,1948 @@
+[
+  {
+    "id": "rba-lowest-rate",
+    "difficulty": "easy",
+    "question": "What is the lowest cash-rate target in the RBA dataset, when did it first take effect, and how many decision records show that rate?",
+    "answer": "The lowest cash-rate target in the dataset is 0.1%, which first took effect on 2020-11-04, across 16 decision record(s) at that rate.",
+    "grading_components": [
+      "0.1",
+      "2020-11-04",
+      "16"
+    ],
+    "tools": [
+      "rba_extreme_rate"
+    ],
+    "tool_args": [
+      {
+        "mode": "lowest"
+      }
+    ]
+  },
+  {
+    "id": "rba-highest-rate",
+    "difficulty": "easy",
+    "question": "What is the highest cash-rate target in the RBA dataset, when did it first take effect, and how many decision records show that rate?",
+    "answer": "The highest cash-rate target in the dataset is 4.75%, which first took effect on 2010-11-03, across 11 decision record(s) at that rate.",
+    "grading_components": [
+      "4.75",
+      "2010-11-03",
+      "11"
+    ],
+    "tools": [
+      "rba_extreme_rate"
+    ],
+    "tool_args": [
+      {
+        "mode": "highest"
+      }
+    ]
+  },
+  {
+    "id": "rba-longest-gap",
+    "difficulty": "medium",
+    "question": "What was the longest stretch between two non-zero RBA rate changes in this dataset?",
+    "answer": "The longest stretch between two non-zero rate changes was 1036 days, from 2016-08-03 to 2019-06-05, during which the rate held at 1.5% before changing to 1.25%.",
+    "grading_components": [
+      "1036",
+      "2016-08-03",
+      "2019-06-05",
+      "1.5",
+      "1.25"
+    ],
+    "tools": [
+      "rba_longest_gap"
+    ],
+    "tool_args": [
+      {}
+    ]
+  },
+  {
+    "id": "rba-largest-hikes-cycle",
+    "difficulty": "hard",
+    "question": "Which tightening cycle (consecutive hikes with no intervening cuts) had the most hikes, and what was the cumulative increase?",
+    "answer": "The largest hikes cycle ran from 2022-05-04 to 2023-11-08 and comprised 13 hike(s), for a cumulative change of +4.25 percentage points. The target rate immediately before the first hike was 0.1%, and the rate reached by 2023-11-08 was 4.35%.",
+    "grading_components": [
+      "13",
+      "2022-05-04",
+      "2023-11-08",
+      "+4.25",
+      "0.1",
+      "4.35"
+    ],
+    "tools": [
+      "rba_largest_cycle"
+    ],
+    "tool_args": [
+      {
+        "direction": "hikes"
+      }
+    ]
+  },
+  {
+    "id": "rba-largest-cuts-cycle",
+    "difficulty": "hard",
+    "question": "Which loosening cycle (consecutive cuts with no intervening hikes) had the most cuts, and what was the cumulative decrease?",
+    "answer": "The largest cuts cycle ran from 2011-11-02 to 2020-11-04 and comprised 18 cut(s), for a cumulative change of -4.65 percentage points. The target rate immediately before the first cut was 4.75%, and the rate reached by 2020-11-04 was 0.1%.",
+    "grading_components": [
+      "18",
+      "2011-11-02",
+      "2020-11-04",
+      "-4.65",
+      "4.75",
+      "0.1"
+    ],
+    "tools": [
+      "rba_largest_cycle"
+    ],
+    "tool_args": [
+      {
+        "direction": "cuts"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2010-06-15",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2010-06-15?",
+    "answer": "As of 2010-06-15, the RBA cash-rate target was 4.5%, set effective 2010-06-02.",
+    "grading_components": [
+      "2010-06-15",
+      "4.5",
+      "2010-06-02"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2010-06-15"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2012-01-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2012-01-01?",
+    "answer": "As of 2012-01-01, the RBA cash-rate target was 4.25%, set effective 2011-12-07.",
+    "grading_components": [
+      "2012-01-01",
+      "4.25",
+      "2011-12-07"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2012-01-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2014-03-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2014-03-01?",
+    "answer": "As of 2014-03-01, the RBA cash-rate target was 2.5%, set effective 2014-02-05.",
+    "grading_components": [
+      "2014-03-01",
+      "2.5",
+      "2014-02-05"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2014-03-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2016-07-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2016-07-01?",
+    "answer": "As of 2016-07-01, the RBA cash-rate target was 1.75%, set effective 2016-06-08.",
+    "grading_components": [
+      "2016-07-01",
+      "1.75",
+      "2016-06-08"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2016-07-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2018-01-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2018-01-01?",
+    "answer": "As of 2018-01-01, the RBA cash-rate target was 1.5%, set effective 2017-12-06.",
+    "grading_components": [
+      "2018-01-01",
+      "1.5",
+      "2017-12-06"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2018-01-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2019-09-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2019-09-01?",
+    "answer": "As of 2019-09-01, the RBA cash-rate target was 1.0%, set effective 2019-08-07.",
+    "grading_components": [
+      "2019-09-01",
+      "1.0",
+      "2019-08-07"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2019-09-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2020-12-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2020-12-01?",
+    "answer": "As of 2020-12-01, the RBA cash-rate target was 0.1%, set effective 2020-11-04.",
+    "grading_components": [
+      "2020-12-01",
+      "0.1",
+      "2020-11-04"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2020-12-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2021-06-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2021-06-01?",
+    "answer": "As of 2021-06-01, the RBA cash-rate target was 0.1%, set effective 2021-05-05.",
+    "grading_components": [
+      "2021-06-01",
+      "0.1",
+      "2021-05-05"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2021-06-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2023-01-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2023-01-01?",
+    "answer": "As of 2023-01-01, the RBA cash-rate target was 3.1%, set effective 2022-12-07.",
+    "grading_components": [
+      "2023-01-01",
+      "3.1",
+      "2022-12-07"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2023-01-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-rate-at-2025-01-01",
+    "difficulty": "easy",
+    "question": "What was the RBA cash rate target in effect on 2025-01-01?",
+    "answer": "As of 2025-01-01, the RBA cash-rate target was 4.35%, set effective 2024-12-11.",
+    "grading_components": [
+      "2025-01-01",
+      "4.35",
+      "2024-12-11"
+    ],
+    "tools": [
+      "rba_rate_at_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2025-01-01"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2010-01-01-2011-12-31",
+    "difficulty": "medium",
+    "question": "Between 2010-01-01 and 2011-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2010-01-01 and 2011-12-31, the RBA changed the cash rate 6 time(s): 4 increase(s) and 2 decrease(s), for a net change of +0.50 percentage points.",
+    "grading_components": [
+      "6",
+      "4",
+      "2",
+      "+0.50"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2010-01-01",
+        "end_date": "2011-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2012-01-01-2013-12-31",
+    "difficulty": "medium",
+    "question": "Between 2012-01-01 and 2013-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2012-01-01 and 2013-12-31, the RBA changed the cash rate 6 time(s): 0 increase(s) and 6 decrease(s), for a net change of -1.75 percentage points.",
+    "grading_components": [
+      "6",
+      "0",
+      "6",
+      "-1.75"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2012-01-01",
+        "end_date": "2013-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2015-01-01-2016-12-31",
+    "difficulty": "medium",
+    "question": "Between 2015-01-01 and 2016-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2015-01-01 and 2016-12-31, the RBA changed the cash rate 4 time(s): 0 increase(s) and 4 decrease(s), for a net change of -1.00 percentage points.",
+    "grading_components": [
+      "4",
+      "0",
+      "4",
+      "-1.00"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2015-01-01",
+        "end_date": "2016-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2017-01-01-2017-12-31",
+    "difficulty": "medium",
+    "question": "Between 2017-01-01 and 2017-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2017-01-01 and 2017-12-31, the RBA changed the cash rate 0 time(s): 0 increase(s) and 0 decrease(s), for a net change of +0.00 percentage points.",
+    "grading_components": [
+      "0",
+      "0",
+      "0",
+      "+0.00"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2017-01-01",
+        "end_date": "2017-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2019-01-01-2020-12-31",
+    "difficulty": "medium",
+    "question": "Between 2019-01-01 and 2020-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2019-01-01 and 2020-12-31, the RBA changed the cash rate 6 time(s): 0 increase(s) and 6 decrease(s), for a net change of -1.40 percentage points.",
+    "grading_components": [
+      "6",
+      "0",
+      "6",
+      "-1.40"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2019-01-01",
+        "end_date": "2020-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2020-01-01-2021-12-31",
+    "difficulty": "medium",
+    "question": "Between 2020-01-01 and 2021-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2020-01-01 and 2021-12-31, the RBA changed the cash rate 3 time(s): 0 increase(s) and 3 decrease(s), for a net change of -0.65 percentage points.",
+    "grading_components": [
+      "3",
+      "0",
+      "3",
+      "-0.65"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2020-01-01",
+        "end_date": "2021-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2022-01-01-2023-12-31",
+    "difficulty": "medium",
+    "question": "Between 2022-01-01 and 2023-12-31, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2022-01-01 and 2023-12-31, the RBA changed the cash rate 13 time(s): 13 increase(s) and 0 decrease(s), for a net change of +4.25 percentage points.",
+    "grading_components": [
+      "13",
+      "13",
+      "0",
+      "+4.25"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2022-01-01",
+        "end_date": "2023-12-31"
+      }
+    ]
+  },
+  {
+    "id": "rba-changes-2010-02-03-2026-06-17",
+    "difficulty": "medium",
+    "question": "Between 2010-02-03 and 2026-06-17, how many times did the RBA change the cash rate, and how many were increases versus decreases?",
+    "answer": "Between 2010-02-03 and 2026-06-17, the RBA changed the cash rate 41 time(s): 20 increase(s) and 21 decrease(s), for a net change of +0.60 percentage points.",
+    "grading_components": [
+      "41",
+      "20",
+      "21",
+      "+0.60"
+    ],
+    "tools": [
+      "rba_changes_in_period"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2010-02-03",
+        "end_date": "2026-06-17"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-AGL",
+    "difficulty": "easy",
+    "question": "What were AGL's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "AGL's highest close was $17.52 on 2017-04-10, and its lowest close was $4.16 on 2021-11-16 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "17.52",
+      "2017-04-10",
+      "4.16",
+      "2021-11-16"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AGL"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-AMP",
+    "difficulty": "easy",
+    "question": "What were AMP's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "AMP's highest close was $4.61 on 2015-03-20, and its lowest close was $0.81 on 2021-12-17 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "4.61",
+      "2015-03-20",
+      "0.81",
+      "2021-12-17"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AMP"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-ANZ",
+    "difficulty": "easy",
+    "question": "What were ANZ's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "ANZ's highest close was $22.10 on 2021-08-13, and its lowest close was $9.96 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "22.10",
+      "2021-08-13",
+      "9.96",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "ANZ"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Aurizon",
+    "difficulty": "easy",
+    "question": "What were Aurizon's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "AURIZON's highest close was $4.23 on 2019-09-23, and its lowest close was $1.94 on 2016-02-15 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "4.23",
+      "2019-09-23",
+      "1.94",
+      "2016-02-15"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Aurizon"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-BHP",
+    "difficulty": "easy",
+    "question": "What were BHP's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "BHP's highest close was $33.72 on 2021-08-04, and its lowest close was $6.44 on 2016-01-21 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "33.72",
+      "2021-08-04",
+      "6.44",
+      "2016-01-21"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "BHP"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-CBA",
+    "difficulty": "easy",
+    "question": "What were CBA's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "CBA's highest close was $93.64 on 2021-11-08, and its lowest close was $43.83 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "93.64",
+      "2021-11-08",
+      "43.83",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "CBA"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Cromwell",
+    "difficulty": "easy",
+    "question": "What were Cromwell's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "CROMWELL's highest close was $0.79 on 2019-11-01, and its lowest close was $0.40 on 2015-09-21 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "0.79",
+      "2019-11-01",
+      "0.40",
+      "2015-09-21"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Cromwell"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-GPT",
+    "difficulty": "easy",
+    "question": "What were GPT's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "GPT's highest close was $4.51 on 2019-07-05, and its lowest close was $2.13 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "4.51",
+      "2019-07-05",
+      "2.13",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "GPT"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-IAG",
+    "difficulty": "easy",
+    "question": "What were IAG's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "IAG's highest close was $6.97 on 2019-07-25, and its lowest close was $3.13 on 2015-09-29 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "6.97",
+      "2019-07-25",
+      "3.13",
+      "2015-09-29"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "IAG"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-NAB",
+    "difficulty": "easy",
+    "question": "What were NAB's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "NAB's highest close was $23.66 on 2021-11-10, and its lowest close was $10.31 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "23.66",
+      "2021-11-10",
+      "10.31",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "NAB"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-QBE",
+    "difficulty": "easy",
+    "question": "What were QBE's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "QBE's highest close was $12.23 on 2020-02-21, and its lowest close was $6.04 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "12.23",
+      "2020-02-21",
+      "6.04",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "QBE"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Qantas",
+    "difficulty": "easy",
+    "question": "What were Qantas's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "QANTAS's highest close was $6.87 on 2019-12-19, and its lowest close was $1.97 on 2015-01-19 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "6.87",
+      "2019-12-19",
+      "1.97",
+      "2015-01-19"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Qantas"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Rio",
+    "difficulty": "easy",
+    "question": "What were Rio's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "RIO's highest close was $95.98 on 2021-08-04, and its lowest close was $18.80 on 2016-02-03 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "95.98",
+      "2021-08-04",
+      "18.80",
+      "2016-02-03"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Rio"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Stockland",
+    "difficulty": "easy",
+    "question": "What were Stockland's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "STOCKLAND's highest close was $3.72 on 2020-02-20, and its lowest close was $1.23 on 2020-03-23 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "3.72",
+      "2020-02-20",
+      "1.23",
+      "2020-03-23"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Stockland"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Suncorp",
+    "difficulty": "easy",
+    "question": "What were Suncorp's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "SUNCORP's highest close was $12.94 on 2018-08-29, and its lowest close was $6.91 on 2020-03-19 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "12.94",
+      "2018-08-29",
+      "6.91",
+      "2020-03-19"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Suncorp"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-TPG",
+    "difficulty": "easy",
+    "question": "What were TPG's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "TPG's highest close was $9.16 on 2016-07-29, and its lowest close was $3.62 on 2017-09-29 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "9.16",
+      "2016-07-29",
+      "3.62",
+      "2017-09-29"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "TPG"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Tabcorp",
+    "difficulty": "easy",
+    "question": "What were Tabcorp's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "TABCORP's highest close was $0.57 on 2021-10-15, and its lowest close was $0.02 on 2015-01-06 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "0.57",
+      "2021-10-15",
+      "0.02",
+      "2015-01-06"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Tabcorp"
+      }
+    ]
+  },
+  {
+    "id": "asx-extremes-Transurban",
+    "difficulty": "easy",
+    "question": "What were Transurban's highest and lowest closing prices in this dataset, and on what dates did they occur?",
+    "answer": "TRANSURBAN's highest close was $12.66 on 2020-02-14, and its lowest close was $5.26 on 2015-01-07 (data spans 2015-01-02 to 2021-12-30).",
+    "grading_components": [
+      "12.66",
+      "2020-02-14",
+      "5.26",
+      "2015-01-07"
+    ],
+    "tools": [
+      "asx_price_extremes"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Transurban"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-AGL",
+    "difficulty": "medium",
+    "question": "What was AGL's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "AGL's largest single-day decline was -9.99%, on 2021-06-30, when the close moved from $7.08 to $6.38.",
+    "grading_components": [
+      "-9.99%",
+      "2021-06-30",
+      "7.08",
+      "6.38"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AGL",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-AMP",
+    "difficulty": "medium",
+    "question": "What was AMP's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "AMP's largest single-day gain was +19.53%, on 2020-10-30, when the close moved from $1.14 to $1.37.",
+    "grading_components": [
+      "+19.53%",
+      "2020-10-30",
+      "1.14",
+      "1.37"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AMP",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-ANZ",
+    "difficulty": "medium",
+    "question": "What was ANZ's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "ANZ's largest single-day decline was -12.50%, on 2020-03-16, when the close moved from $13.29 to $11.62.",
+    "grading_components": [
+      "-12.50%",
+      "2020-03-16",
+      "13.29",
+      "11.62"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "ANZ",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Aurizon",
+    "difficulty": "medium",
+    "question": "What was Aurizon's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "AURIZON's largest single-day gain was +9.52%, on 2020-03-30, when the close moved from $3.17 to $3.47.",
+    "grading_components": [
+      "+9.52%",
+      "2020-03-30",
+      "3.17",
+      "3.47"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Aurizon",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-BHP",
+    "difficulty": "medium",
+    "question": "What was BHP's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "BHP's largest single-day decline was -14.41%, on 2020-03-09, when the close moved from $19.07 to $16.32.",
+    "grading_components": [
+      "-14.41%",
+      "2020-03-09",
+      "19.07",
+      "16.32"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "BHP",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-CBA",
+    "difficulty": "medium",
+    "question": "What was CBA's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "CBA's largest single-day gain was +13.26%, on 2020-03-17, when the close moved from $48.25 to $54.64.",
+    "grading_components": [
+      "+13.26%",
+      "2020-03-17",
+      "48.25",
+      "54.64"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "CBA",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Cromwell",
+    "difficulty": "medium",
+    "question": "What was Cromwell's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "CROMWELL's largest single-day decline was -11.18%, on 2020-03-23, when the close moved from $0.48 to $0.43.",
+    "grading_components": [
+      "-11.18%",
+      "2020-03-23",
+      "0.48",
+      "0.43"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Cromwell",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-GPT",
+    "difficulty": "medium",
+    "question": "What was GPT's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "GPT's largest single-day gain was +18.33%, on 2020-03-24, when the close moved from $2.13 to $2.52.",
+    "grading_components": [
+      "+18.33%",
+      "2020-03-24",
+      "2.13",
+      "2.52"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "GPT",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-IAG",
+    "difficulty": "medium",
+    "question": "What was IAG's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "IAG's largest single-day decline was -8.45%, on 2015-02-18, when the close moved from $4.00 to $3.66.",
+    "grading_components": [
+      "-8.45%",
+      "2015-02-18",
+      "4.00",
+      "3.66"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "IAG",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-NAB",
+    "difficulty": "medium",
+    "question": "What was NAB's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "NAB's largest single-day gain was +9.65%, on 2020-03-25, when the close moved from $10.70 to $11.73.",
+    "grading_components": [
+      "+9.65%",
+      "2020-03-25",
+      "10.70",
+      "11.73"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "NAB",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-QBE",
+    "difficulty": "medium",
+    "question": "What was QBE's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "QBE's largest single-day decline was -14.93%, on 2020-03-16, when the close moved from $8.85 to $7.53.",
+    "grading_components": [
+      "-14.93%",
+      "2020-03-16",
+      "8.85",
+      "7.53"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "QBE",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Qantas",
+    "difficulty": "medium",
+    "question": "What was Qantas's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "QANTAS's largest single-day gain was +26.25%, on 2020-03-25, when the close moved from $2.40 to $3.03.",
+    "grading_components": [
+      "+26.25%",
+      "2020-03-25",
+      "2.40",
+      "3.03"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Qantas",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Rio",
+    "difficulty": "medium",
+    "question": "What was Rio's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "RIO's largest single-day decline was -7.54%, on 2016-05-04, when the close moved from $27.19 to $25.14.",
+    "grading_components": [
+      "-7.54%",
+      "2016-05-04",
+      "27.19",
+      "25.14"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Rio",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Stockland",
+    "difficulty": "medium",
+    "question": "What was Stockland's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "STOCKLAND's largest single-day gain was +10.86%, on 2020-03-24, when the close moved from $1.23 to $1.37.",
+    "grading_components": [
+      "+10.86%",
+      "2020-03-24",
+      "1.23",
+      "1.37"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Stockland",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Suncorp",
+    "difficulty": "medium",
+    "question": "What was Suncorp's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "SUNCORP's largest single-day decline was -11.34%, on 2020-03-18, when the close moved from $8.73 to $7.74.",
+    "grading_components": [
+      "-11.34%",
+      "2020-03-18",
+      "8.73",
+      "7.74"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Suncorp",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-TPG",
+    "difficulty": "medium",
+    "question": "What was TPG's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "TPG's largest single-day gain was +21.62%, on 2018-08-22, when the close moved from $4.71 to $5.73.",
+    "grading_components": [
+      "+21.62%",
+      "2018-08-22",
+      "4.71",
+      "5.73"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "TPG",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Tabcorp",
+    "difficulty": "medium",
+    "question": "What was Tabcorp's largest single-day percentage decline in closing price, and when did it happen?",
+    "answer": "TABCORP's largest single-day decline was -13.15%, on 2020-03-23, when the close moved from $0.21 to $0.18.",
+    "grading_components": [
+      "-13.15%",
+      "2020-03-23",
+      "0.21",
+      "0.18"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Tabcorp",
+        "direction": "decline"
+      }
+    ]
+  },
+  {
+    "id": "asx-move-Transurban",
+    "difficulty": "medium",
+    "question": "What was Transurban's largest single-day percentage gain in closing price, and when did it happen?",
+    "answer": "TRANSURBAN's largest single-day gain was +11.18%, on 2020-03-25, when the close moved from $8.64 to $9.61.",
+    "grading_components": [
+      "+11.18%",
+      "2020-03-25",
+      "8.64",
+      "9.61"
+    ],
+    "tools": [
+      "asx_single_day_move"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Transurban",
+        "direction": "gain"
+      }
+    ]
+  },
+  {
+    "id": "asx-top-performer-highest",
+    "difficulty": "hard",
+    "question": "Which company was the best-performing in the ASX basket by total close-to-close return over the full dataset period, and what was its return?",
+    "answer": "The best-performing company in the ASX basket was Tabcorp, with a total close-to-close return of +2660.82% over the full dataset period.",
+    "grading_components": [
+      "Tabcorp",
+      "+2660.82%"
+    ],
+    "tools": [
+      "asx_top_performer"
+    ],
+    "tool_args": [
+      {
+        "direction": "highest"
+      }
+    ]
+  },
+  {
+    "id": "asx-top-performer-lowest",
+    "difficulty": "hard",
+    "question": "Which company was the worst-performing in the ASX basket by total close-to-close return over the full dataset period, and what was its return?",
+    "answer": "The worst-performing company in the ASX basket was AMP, with a total close-to-close return of -75.83% over the full dataset period.",
+    "grading_components": [
+      "AMP",
+      "-75.83%"
+    ],
+    "tools": [
+      "asx_top_performer"
+    ],
+    "tool_args": [
+      {
+        "direction": "lowest"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-BHP",
+    "difficulty": "hard",
+    "question": "Where does BHP rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "BHP ranks 3 of 18 companies in the ASX basket by total close-to-close return, with a return of +139.40% over the full dataset period.",
+    "grading_components": [
+      "3 of 18",
+      "+139.40"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "BHP"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-CBA",
+    "difficulty": "hard",
+    "question": "Where does CBA rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "CBA ranks 7 of 18 companies in the ASX basket by total close-to-close return, with a return of +69.53% over the full dataset period.",
+    "grading_components": [
+      "7 of 18",
+      "+69.53"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "CBA"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-AGL",
+    "difficulty": "hard",
+    "question": "Where does AGL rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "AGL ranks 17 of 18 companies in the ASX basket by total close-to-close return, with a return of -33.45% over the full dataset period.",
+    "grading_components": [
+      "17 of 18",
+      "-33.45"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AGL"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-AMP",
+    "difficulty": "hard",
+    "question": "Where does AMP rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "AMP ranks 18 of 18 companies in the ASX basket by total close-to-close return, with a return of -75.83% over the full dataset period.",
+    "grading_components": [
+      "18 of 18",
+      "-75.83"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "AMP"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-NAB",
+    "difficulty": "hard",
+    "question": "Where does NAB rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "NAB ranks 10 of 18 companies in the ASX basket by total close-to-close return, with a return of +38.69% over the full dataset period.",
+    "grading_components": [
+      "10 of 18",
+      "+38.69"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "NAB"
+      }
+    ]
+  },
+  {
+    "id": "asx-rank-Rio",
+    "difficulty": "hard",
+    "question": "Where does Rio rank by total close-to-close return among the 18-company ASX basket over the full dataset period, and what is its return?",
+    "answer": "RIO ranks 2 of 18 companies in the ASX basket by total close-to-close return, with a return of +168.40% over the full dataset period.",
+    "grading_components": [
+      "2 of 18",
+      "+168.40"
+    ],
+    "tools": [
+      "asx_rank_by_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Rio"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-ANZ",
+    "difficulty": "medium",
+    "question": "What is ANZ's total close-to-close return over the full dataset period?",
+    "answer": "ANZ's total return from 2015-01-02 to 2021-12-30 was +26.06%, from $16.94 to $21.35.",
+    "grading_components": [
+      "+26.06%",
+      "16.94",
+      "21.35"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "ANZ"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-QBE",
+    "difficulty": "medium",
+    "question": "What is QBE's total close-to-close return over the full dataset period?",
+    "answer": "QBE's total return from 2015-01-02 to 2021-12-30 was +28.85%, from $7.45 to $9.61.",
+    "grading_components": [
+      "+28.85%",
+      "7.45",
+      "9.61"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "QBE"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-IAG",
+    "difficulty": "medium",
+    "question": "What is IAG's total close-to-close return over the full dataset period?",
+    "answer": "IAG's total return from 2015-01-02 to 2021-12-30 was -5.19%, from $3.94 to $3.73.",
+    "grading_components": [
+      "-5.19%",
+      "3.94",
+      "3.73"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "IAG"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-TPG",
+    "difficulty": "medium",
+    "question": "What is TPG's total close-to-close return over the full dataset period?",
+    "answer": "TPG's total return from 2015-01-02 to 2021-12-30 was +4.62%, from $4.77 to $4.99.",
+    "grading_components": [
+      "+4.62%",
+      "4.77",
+      "4.99"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "TPG"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-GPT",
+    "difficulty": "medium",
+    "question": "What is GPT's total close-to-close return over the full dataset period?",
+    "answer": "GPT's total return from 2015-01-02 to 2021-12-30 was +70.51%, from $2.48 to $4.23.",
+    "grading_components": [
+      "+70.51%",
+      "2.48",
+      "4.23"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "GPT"
+      }
+    ]
+  },
+  {
+    "id": "asx-total-return-Suncorp",
+    "difficulty": "medium",
+    "question": "What is Suncorp's total close-to-close return over the full dataset period?",
+    "answer": "SUNCORP's total return from 2015-01-02 to 2021-12-30 was +17.25%, from $9.30 to $10.91.",
+    "grading_components": [
+      "+17.25%",
+      "9.30",
+      "10.91"
+    ],
+    "tools": [
+      "asx_total_return"
+    ],
+    "tool_args": [
+      {
+        "ticker": "Suncorp"
+      }
+    ]
+  },
+  {
+    "id": "afr-corpus-stats",
+    "difficulty": "easy",
+    "question": "How many articles are in the AFR dataset in total, and what date range do they span?",
+    "answer": "There are 219538 articles in total, spanning publication dates from 2015-01-02 to 2021-12-29.",
+    "grading_components": [
+      "219538",
+      "2015-01-02",
+      "2021-12-29"
+    ],
+    "tools": [
+      "afr_corpus_stats"
+    ],
+    "tool_args": [
+      {}
+    ]
+  },
+  {
+    "id": "afr-busiest-day-overall",
+    "difficulty": "medium",
+    "question": "Which single day had the most AFR articles published, and how many?",
+    "answer": "The busiest day was 2016-08-26, with 314 articles published.",
+    "grading_components": [
+      "2016-08-26",
+      "314"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {}
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2015",
+    "difficulty": "medium",
+    "question": "Which single day in 2015 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2015 was 2015-05-13, with 161 articles published.",
+    "grading_components": [
+      "2015-05-13",
+      "161"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2015-01-01",
+        "end_date": "2015-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2016",
+    "difficulty": "medium",
+    "question": "Which single day in 2016 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2016 was 2016-08-26, with 314 articles published.",
+    "grading_components": [
+      "2016-08-26",
+      "314"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2016-01-01",
+        "end_date": "2016-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2017",
+    "difficulty": "medium",
+    "question": "Which single day in 2017 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2017 was 2017-04-28, with 163 articles published.",
+    "grading_components": [
+      "2017-04-28",
+      "163"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2017-01-01",
+        "end_date": "2017-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2018",
+    "difficulty": "medium",
+    "question": "Which single day in 2018 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2018 was 2018-10-02, with 227 articles published.",
+    "grading_components": [
+      "2018-10-02",
+      "227"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2018-01-01",
+        "end_date": "2018-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2019",
+    "difficulty": "medium",
+    "question": "Which single day in 2019 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2019 was 2019-12-13, with 189 articles published.",
+    "grading_components": [
+      "2019-12-13",
+      "189"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2019-01-01",
+        "end_date": "2019-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2020",
+    "difficulty": "medium",
+    "question": "Which single day in 2020 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2020 was 2020-08-28, with 209 articles published.",
+    "grading_components": [
+      "2020-08-28",
+      "209"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2020-01-01",
+        "end_date": "2020-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-busiest-day-2021",
+    "difficulty": "medium",
+    "question": "Which single day in 2021 had the most AFR articles published, and how many?",
+    "answer": "The busiest day in 2021 was 2021-06-25, with 244 articles published.",
+    "grading_components": [
+      "2021-06-25",
+      "244"
+    ],
+    "tools": [
+      "afr_busiest_day"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2021-01-01",
+        "end_date": "2021-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-bank",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'bank' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "47347 articles mention 'bank' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "47347"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "bank"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-NAB",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'NAB' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "7372 articles mention 'NAB' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "7372"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "NAB"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-CBA",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'CBA' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "6402 articles mention 'CBA' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "6402"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "CBA"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-ANZ",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'ANZ' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "11463 articles mention 'ANZ' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "11463"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "ANZ"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-Westpac",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'Westpac' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "11699 articles mention 'Westpac' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "11699"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "Westpac"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-RBA",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'RBA' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "6426 articles mention 'RBA' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "6426"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "RBA"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-mining",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'mining' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "17197 articles mention 'mining' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "17197"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "mining"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-China",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'China' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "30666 articles mention 'China' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "30666"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "China"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-iron-ore",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'iron ore' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "10087 articles mention 'iron ore' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "10087"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "iron ore"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-tax",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'tax' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "30451 articles mention 'tax' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "30451"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "tax"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-budget",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'budget' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "16837 articles mention 'budget' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "16837"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "budget"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-election",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'election' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "20471 articles mention 'election' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "20471"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "election"
+      }
+    ]
+  },
+  {
+    "id": "afr-pattern-gigafactory",
+    "difficulty": "medium",
+    "question": "How many AFR articles mention 'gigafactory' (as a whole word) in their headline, subhead, intro, or body text?",
+    "answer": "33 articles mention 'gigafactory' as a whole word across their headline, subhead, intro, or body text.",
+    "grading_components": [
+      "33"
+    ],
+    "tools": [
+      "afr_pattern_count"
+    ],
+    "tool_args": [
+      {
+        "pattern": "gigafactory"
+      }
+    ]
+  },
+  {
+    "id": "afr-longest-headline-overall",
+    "difficulty": "hard",
+    "question": "What is the longest article headline (by character count) in the entire AFR dataset, and how long is it?",
+    "answer": "The longest headline is 489 characters, published 2015-07-17: 'MINING & OILto close of business: Thursday, July 16, 2015. +\\tNo.Last\\tor\\tSold\\t52 '...",
+    "grading_components": [
+      "489",
+      "2015-07-17",
+      "MINING & OILto close of busine"
+    ],
+    "tools": [
+      "afr_longest_headline"
+    ],
+    "tool_args": [
+      {}
+    ]
+  },
+  {
+    "id": "afr-longest-headline-2015",
+    "difficulty": "hard",
+    "question": "What is the longest article headline (by character count) among AFR articles published in 2015?",
+    "answer": "The longest headline in 2015 is 489 characters, published 2015-07-17: 'MINING & OILto close of business: Thursday, July 16, 2015. +\\tNo.Last\\tor\\tSold\\t52 '...",
+    "grading_components": [
+      "489",
+      "2015-07-17"
+    ],
+    "tools": [
+      "afr_longest_headline"
+    ],
+    "tool_args": [
+      {
+        "start_date": "2015-01-01",
+        "end_date": "2015-12-31"
+      }
+    ]
+  },
+  {
+    "id": "afr-articles-on-2015-01-05",
+    "difficulty": "medium",
+    "question": "How many AFR articles were published on 2015-01-05?",
+    "answer": "59 article(s) were published on 2015-01-05.",
+    "grading_components": [
+      "59"
+    ],
+    "tools": [
+      "afr_articles_on_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2015-01-05"
+      }
+    ]
+  },
+  {
+    "id": "afr-articles-on-2016-08-26",
+    "difficulty": "medium",
+    "question": "How many AFR articles were published on 2016-08-26?",
+    "answer": "314 article(s) were published on 2016-08-26.",
+    "grading_components": [
+      "314"
+    ],
+    "tools": [
+      "afr_articles_on_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2016-08-26"
+      }
+    ]
+  },
+  {
+    "id": "afr-articles-on-2018-03-15",
+    "difficulty": "medium",
+    "question": "How many AFR articles were published on 2018-03-15?",
+    "answer": "97 article(s) were published on 2018-03-15.",
+    "grading_components": [
+      "97"
+    ],
+    "tools": [
+      "afr_articles_on_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2018-03-15"
+      }
+    ]
+  },
+  {
+    "id": "afr-articles-on-2020-03-09",
+    "difficulty": "medium",
+    "question": "How many AFR articles were published on 2020-03-09?",
+    "answer": "114 article(s) were published on 2020-03-09.",
+    "grading_components": [
+      "114"
+    ],
+    "tools": [
+      "afr_articles_on_date"
+    ],
+    "tool_args": [
+      {
+        "as_of": "2020-03-09"
+      }
+    ]
+  }
+]
