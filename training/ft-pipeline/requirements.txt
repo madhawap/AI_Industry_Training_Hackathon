@@ -1,6 +1,11 @@
-# ft-pipeline runtime deps. Install into the `ft-pipeline` conda env (python 3.12):
+# ft-pipeline runtime deps. Install into the `ft-pipeline` conda env (python 3.12).
+# INSTALL TORCH FIRST, from the CUDA index — see README "Setup". Order matters:
+# the default PyPI torch wheel is not the GPU build we want, so pin it up front
+# and the `torch` line below is then already satisfied and left alone.
 #   conda create -n ft-pipeline python=3.12 -y
-#   conda run -n ft-pipeline pip install -r requirements.txt
+#   conda activate ft-pipeline
+#   pip install torch --index-url https://download.pytorch.org/whl/cu130
+#   pip install -r requirements.txt
 #
 # Core (needed for every stage, even the `noop`/`stub` walking skeleton):
 pyyaml>=6.0

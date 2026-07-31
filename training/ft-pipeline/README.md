@@ -1,21 +1,170 @@
 # ft-pipeline
 
 A staged, contract-agnostic fine-tuning pipeline. Built so that the parts we
-*have* decided (LoRA, checkpoint selection, splitting, evidence) can be built
+_have_ decided (LoRA, checkpoint selection, splitting, evidence) can be built
 and tested **before** the parts we have not (tool-result schema, prompt format,
 grading contract, serving system prompt).
 
 Method is **LoRA** — the base model's weights are frozen and a small adapter
 (tens of MB) is trained alongside them.
 
+## Setup
+
+Needs conda (miniforge) and Python 3.12. **Run every command from
+`training/ft-pipeline/`** — `--config`, `--overlay` and the adapter's `path` are
+all resolved relative to the working directory.
+
+```bash
+cd training/ft-pipeline
+conda create -n ft-pipeline python=3.12 -y
+conda activate ft-pipeline      # every command below assumes this is active
+```
+
+**Activate the env rather than prefixing each command with `conda run`.**
+`conda run` captures stdout and releases it only when the process exits, so a
+training run prints nothing until it is over — no progress, no loss curve, no
+sign of life. Activating gives you live output. Where activating is impossible
+(scripts, cron, one-liners) either call the interpreter directly or pass
+`--no-capture-output`:
+
+```bash
+~/miniforge3/envs/ft-pipeline/bin/python -m ftpipe.cli run --config config/generated.yaml
+conda run --no-capture-output -n ft-pipeline python -m ftpipe.cli run --config config/generated.yaml
+```
+
+**Install `torch` first, from the CUDA index — before `requirements.txt`.** PyPI's
+default `torch` wheel is not the build you want here; installing it first from
+the matching CUDA index is what pins the GPU build, and every later install then
+sees the requirement as already satisfied and leaves it alone.
+
+```bash
+nvidia-smi | grep "CUDA Version"        # driver's CUDA version -> pick the index
+pip install torch --index-url https://download.pytorch.org/whl/cu130
+```
+
+Match the index to the driver. This box is a GB10 on driver 580 / CUDA 13.0, so
+`cu130` is the exact match and carries the newest wheels. `cu128` also works
+here — a CUDA 12.8 wheel runs on a 13.0 driver, since drivers are backward
+compatible with older CUDA runtimes — so use it if you are on a CUDA 12.8 driver
+or want the more widely exercised build. Both indexes carry `cp312` wheels for
+`aarch64` as well as `x86_64`, so the command is the same on either
+architecture. Picking a too-old index is the usual cause of
+`torch.cuda.is_available() == False` or an `sm_121 is not compatible` warning on
+Blackwell.
+
+Then the rest:
+
+```bash
+pip install -r requirements.txt
+```
+
+Confirm the GPU build took before going further — the version should carry a
+`+cu` local tag, and the last value **must** be `True`:
+
+```bash
+python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())"
+# e.g. 2.13.0+cu130 13.0 True    <- a bare "2.13.0" with no +cu means the wrong wheel
+```
+
+Only `pyyaml` is needed for the walking skeleton — all eight stages run on it
+alone, so you can skip both torch steps until you want real training.
+`transformers`/`peft`/`accelerate`/`datasets` are for `train.backend: peft` and
+`predict`; the `rouge-score`/`sacrebleu`/`anthropic`/`openai` lines are for the
+optional graders. If conda is unavailable, a plain `python3.12 -m venv .venv`
+works identically, same torch-first ordering (`.venv/` is git-ignored).
+
+Verify the install — no GPU, no data, no model download, a few seconds:
+
+```bash
+python tests/test_pipeline.py             # 20/20 passed
+python -m ftpipe.cli plugins              # 2 adapters, 5 graders, 2 backends
+python -m ftpipe.cli run --config config/skeleton.yaml
+```
+
+Both spellings of the entry point work — the subcommand (`run`, `stage`,
+`plugins`) always comes _after_ the module or file path:
+
+```bash
+python -m ftpipe.cli run --config config/generated.yaml   # preferred
+python ftpipe/cli.py   run --config config/generated.yaml   # equivalent
+```
+
+The skeleton should end in `✓ done` with a bundle under `runs/skeleton/`. Note
+that **exit code 2 is not a crash** — it means `UndecidedError`, i.e. a config
+key that is deliberately `null` (see _Undecided values are `null`_, below); the
+CLI prints `⏸ undecided:` and the exact key name. Exit 1 is a real failure.
+
+### Which config to start from
+
+| config                  | needs                | use it for                                                 |
+| ----------------------- | -------------------- | ---------------------------------------------------------- |
+| `config/skeleton.yaml`  | nothing              | first run, and after any change — proves the plumbing      |
+| `config/generated.yaml` | GPU + model download | **the real fine-tune** — 126 generated Q/A/tool-trace rows |
+| `config/nemotron.yaml`  | GPU + model download | real LoRA on stub records, for shaking out the GPU path    |
+| `config/mock.yaml`      | GPU + real data      | superseded by `generated.yaml` (see caveat)                |
+
+`config/generated.yaml` is the one to run for an actual fine-tune. It reads
+`../data/generated_questions.jsonl` (126 rows, 29 template families) and its
+field map is settled against that file, so it needs no edits. Note two things it
+had to work around, both worth re-checking if the data is regenerated:
+
+- **`eval_field` must be `required_facts`, not `grading`.** `grading.components`
+  is a list of _objects_; `component_match` compares components as strings, so
+  pointing at it scores `component_recall` 0.0 even for a word-perfect answer —
+  which would tie every checkpoint at zero and make `select` meaningless.
+  `required_facts` holds the same sentences as plain strings and scores gold 1.0.
+- **`seed`/`splits` are chosen for category coverage.** At `[0.8, 0.1, 0.1]` the
+  val split was 100% `answerable` — and no seed in 0..39 fixes that — so
+  checkpoint selection could not see refusal or extrapolation behaviour at all.
+
+`config/mock.yaml` points at `../../data/mock_questions.json`, which is **not
+present in this repo**. Prefer `generated.yaml`; if you do want mock, update
+`adapter.path` and the field map to match a file that exists.
+
+### Environment variables
+
+All optional:
+
+| var                                    | effect                                                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `FTPIPE_RUNS`                          | where run directories go (default `./runs`, git-ignored)                                                                                         |
+| `CUDA_VISIBLE_DEVICES`                 | pin the GPU. Must be an index `nvidia-smi` lists — an out-of-range index hides all GPUs and `train` dies with a misleading `bf16/gpu` ValueError |
+| `HF_HOME`                              | Hugging Face cache location — worth setting if `$HOME` is small (~6 GB for the 3B stand-in, ~16 GB for Nemotron)                                 |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` | only read by the opt-in `llm_judge` grader                                                                                                       |
+
+Both models are ungated, so no `huggingface-cli login` step is required.
+
 ## Quick start
 
 ```bash
-conda run -n ft-pipeline python -m ftpipe.cli plugins                       # what's pluggable
-conda run -n ft-pipeline python -m ftpipe.cli run --config config/skeleton.yaml   # no GPU, no data
-CUDA_VISIBLE_DEVICES=2 conda run -n ft-pipeline python -m ftpipe.cli run \
-    --config config/nemotron.yaml                                          # real LoRA
+python -m ftpipe.cli plugins                       # what's pluggable
+python -m ftpipe.cli run --config config/skeleton.yaml   # no GPU, no data
+CUDA_VISIBLE_DEVICES=0 python -m ftpipe.cli run --config config/nemotron.yaml  # real LoRA
 ```
+
+The device index must be one `nvidia-smi` actually lists (this box has only
+`0`). Naming a device that does not exist hides _every_ GPU, and `train` then
+fails with `ValueError: Your setup doesn't support bf16/gpu` — `bf16=True` is
+unconditional in `backends.py`, so "no visible GPU" surfaces as a dtype
+complaint rather than an obvious "GPU not found".
+
+### Two GPU errors that do not say "out of memory"
+
+Both really mean _the model does not fit_, so check free VRAM first —
+`nvidia-smi` reports total usage, but only torch's own view tells you what is
+still allocatable:
+
+```bash
+python -c "import torch;f,t=torch.cuda.mem_get_info(0);print(f'{f/2**30:.1f} GiB free of {t/2**30:.1f}')"
+```
+
+- `RuntimeError: Tensor on device cuda:0 is not on the expected device meta!` —
+  raised at step 0 with `train.device_map: auto`. `auto` shards a model that does
+  not fit, and when it runs out of room it leaves layers on the `meta` device
+  (unmaterialised) instead of erroring. Use `device_map: {"": 0}` for
+  single-GPU training so an unfittable model raises a normal CUDA OOM.
+- `ValueError: Your setup doesn't support bf16/gpu` — no GPU is visible at all;
+  see the `CUDA_VISIBLE_DEVICES` note above.
 
 Re-run one stage only (e.g. after changing a grader — no regeneration needed):
 
@@ -27,21 +176,21 @@ Tests (no pytest needed) — includes the **contract-change drill**, which fails
 if knowledge of the prompt format ever leaks outside `renderers/`:
 
 ```bash
-conda run -n ft-pipeline python tests/test_pipeline.py    # 20/20
+python tests/test_pipeline.py    # 20/20
 ```
 
 ## The eight stages
 
-| stage | in → out | decides |
-|---|---|---|
-| `ingest` | raw → `canonical.jsonl` | which source adapter |
-| `curate` | canonical → `train/val/test` | dedupe, **group-aware** split |
-| `render` | canonical → messages + **length report** | prompt format, seq-len budget |
-| `train` | messages → LoRA checkpoints | backend, hyperparameters |
-| `predict` | base **and** every checkpoint → predictions | decoding |
-| `evaluate` | predictions × graders → metrics | what "good" means |
-| `select` | metrics → chosen checkpoint + rationale | shipping policy |
-| `export` | → evidence bundle | packaging |
+| stage      | in → out                                    | decides                       |
+| ---------- | ------------------------------------------- | ----------------------------- |
+| `ingest`   | raw → `canonical.jsonl`                     | which source adapter          |
+| `curate`   | canonical → `train/val/test`                | dedupe, **group-aware** split |
+| `render`   | canonical → messages + **length report**    | prompt format, seq-len budget |
+| `train`    | messages → LoRA checkpoints                 | backend, hyperparameters      |
+| `predict`  | base **and** every checkpoint → predictions | decoding                      |
+| `evaluate` | predictions × graders → metrics             | what "good" means             |
+| `select`   | metrics → chosen checkpoint + rationale     | shipping policy               |
+| `export`   | → evidence bundle                           | packaging                     |
 
 Every stage is file-in / file-out, so any stage can be re-run alone. `predict`
 (slow, GPU) is split from `evaluate` (fast, CPU) on purpose: grader definitions
@@ -73,7 +222,7 @@ makes it structurally impossible rather than a discipline problem.
 Generated data is full of near-duplicates; letting a template straddle
 train/val produces a val score that is fiction.
 
-**Guardrailed selection.** `select` maximises a primary metric *subject to*
+**Guardrailed selection.** `select` maximises a primary metric _subject to_
 guardrails, so a checkpoint that scores higher while inventing numbers
 (`hallucinated_number_rate`) cannot win. It also prefers the earliest
 checkpoint within a tie tolerance.
@@ -89,10 +238,19 @@ risk lives.
 
 `train.model_id` is the only line that changes:
 
+- `nvidia/Llama-3.1-Nemotron-Nano-8B-v1` — the hackathon model (ungated),
+  ~16 GB bf16. **What `config/nemotron.yaml` now uses.** Needs a mostly-free GPU.
 - `unsloth/Llama-3.2-3B-Instruct` — same Llama-3 architecture and chat template
   as the hackathon target, ~6 GB bf16, fits beside other jobs. Use for iteration.
-- `nvidia/Llama-3.1-Nemotron-Nano-8B-v1` — the hackathon model (ungated),
-  ~16 GB bf16. Needs a mostly-free GPU.
+
+Swapping between them needs no other change — but check free VRAM first, since
+this GPU is shared with whatever else is running:
+
+```bash
+nvidia-smi --query-gpu=memory.used,memory.total --format=csv
+# or, for what torch can actually still allocate:
+python -c "import torch;f,t=torch.cuda.mem_get_info(0);print(f'{f/2**30:.1f} GiB free')"
+```
 
 ## LoRA/DoRA/rsLoRA/NEFTune, and the eval fallback chain
 
@@ -115,7 +273,7 @@ in `../finetune_nemotron_updated.ipynb`, kept as config rather than hardcoded:
   ```yaml
   evaluate:
     graders: [component_match, format_health, llm_judge]
-    llm_judge: {provider: anthropic, model: claude-sonnet-5}
+    llm_judge: { provider: anthropic, model: claude-sonnet-5 }
   ```
   and set `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY` for `provider: openai`).
 
