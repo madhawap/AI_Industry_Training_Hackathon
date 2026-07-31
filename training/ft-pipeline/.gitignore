@@ -1,4 +1,4 @@
-runs/
+runs/generated/train/
 __pycache__/
 *.pyc
 .venv/
