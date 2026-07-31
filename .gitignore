@@ -158,3 +158,10 @@ Thumbs.db
 # training
 ./training/.venv
 ./training/nemotron_ft/checkpoints/*
+
+# Data Stuff
+normalized/
+parquet/
+
+warehouse.duckdb
+warehouse.duckdb.wal

@@ -9,11 +9,12 @@ Pipeline order: `../../data set/` (raw, at the repo root — two levels up from 
 ### Quickstart
 
 ```
-cd src/data
-pip install -r ../../requirements.txt
-python3 normalize_dates.py "../../data set" ./normalized
-python3 setup_duckdb.py ./normalized ./parquet ./warehouse.duckdb
-python3 test_queries.py ./warehouse.duckdb
+# From the root directory
+pip install -r requirements.txt
+python3 src/data/normalize_dates.py "./data set" ./normalized
+python3 src/data/setup_duckdb.py ./normalized ./parquet ./warehouse.duckdb
+# Test
+python3 src/data/test_queries.py ./warehouse.duckdb
 ```
 
 ### Source data: `../../data set/`

@@ -1,7 +1,0 @@
-# input/
-normalized/
-parquet/
-
-warehouse.duckdb
-
-__pycache__/
