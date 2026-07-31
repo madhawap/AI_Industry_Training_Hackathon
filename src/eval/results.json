@@ -1,0 +1,1669 @@
+[
+  {
+    "id": "MHQ001",
+    "difficulty": "easy",
+    "question": "From the first RBA record to the last, how many cash-rate decisions changed the rate, and how many were increases versus decreases?",
+    "query_response": {
+      "answer": "Of 175 decision records, 41 changed the rate, consisting of 20 increases and 21 decreases.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "args": {
+                  "start": "2010-02-03",
+                  "end": "2026-06-17"
+                },
+                "id": "rba_change_summary",
+                "op": "rba.change_summary"
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "rba_change_summary",
+                "op": "rba.change_summary",
+                "status": "ok",
+                "data": {
+                  "record_count": 175,
+                  "changed_count": 41,
+                  "increases": 20,
+                  "decreases": 21,
+                  "holds": 134,
+                  "cumulative_change_pct_points": 0.6,
+                  "rate_before_pct": 3.75,
+                  "rate_after_pct": 4.35,
+                  "window_start": "2010-02-03",
+                  "window_end": "2026-06-17"
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "sign counts over change_pct, cumulative sum reconciled against the net target move",
+                  "records_used": 175,
+                  "coverage": "2010-02-03 to 2026-06-17"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "41 of the 175 decision records changed the rate: 20 increases and 21 decreases."
+    ],
+    "scoring_notes": "Full credit requires all three numbers: 41 total changes, 20 increases, 21 decreases.",
+    "reference_answer": "41 of the 175 decision records changed the rate: 20 increases and 21 decreases.",
+    "seconds": 25.437
+  },
+  {
+    "id": "MHQ035",
+    "difficulty": "medium",
+    "question": "Across the 2011-2013 easing period, how many cuts occurred and how far did the target fall?",
+    "query_response": {
+      "answer": "Of 8 cycles, a cumulative change of -2.25 percentage points, a duration of 644 days, with the rate dropping from 4.75% to 2.5%.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "easing_cycle",
+                "op": "rba.rate_cycle",
+                "args": {
+                  "direction": "easing",
+                  "start": "2011-01-01",
+                  "end": "2013-12-31",
+                  "select": "latest"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "easing_cycle",
+                "op": "rba.rate_cycle",
+                "status": "ok",
+                "data": {
+                  "direction": "easing",
+                  "move_count": 8,
+                  "cumulative_change_pct_points": -2.25,
+                  "start_date": "2011-11-02",
+                  "end_date": "2013-08-07",
+                  "rate_before_pct": 4.75,
+                  "rate_after_pct": 2.5,
+                  "duration_days": 644
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "maximal run of same-signed rate moves, uninterrupted by a reversal; cumulative sum reconciled against rate before/after",
+                  "records_used": 8,
+                  "coverage": "2011-02-02 to 2013-12-04",
+                  "cycles_found": 1
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "Eight cuts occurred: 2 in 2011, 4 in 2012, and 2 in 2013.",
+      "They totalled -2.25 percentage points, taking the target from 4.75% before the first cut to 2.50% at the end of 2013."
+    ],
+    "scoring_notes": "Require the total count, cumulative cut, and both endpoint rates.",
+    "reference_answer": "Eight cuts occurred: 2 in 2011, 4 in 2012, and 2 in 2013. They totalled -2.25 percentage points, taking the target from 4.75% before the first cut to 2.50% at the end of 2013.",
+    "seconds": 26.661
+  },
+  {
+    "id": "MHQ040",
+    "difficulty": "easy",
+    "question": "What are the dimensions and common date range of the ASX dataset?",
+    "query_response": {
+      "answer": "The ASX dataset includes 17 tickers, from 2015-01-02 to 2021-12-30, with a highest close of $58.33 (CBA.AX) and a lowest of $0.21 (TAH.AX).",
+      "steps": 2,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "args": {
+                  "tickers": [
+                    "AAG.AX",
+                    "AMP.AX",
+                    "ANZ.AX",
+                    "AZJ.AX",
+                    "BHP.AX",
+                    "CBA.AX",
+                    "CMW.AX",
+                    "GPT.AX",
+                    "IAG.AX",
+                    "NAB.AX",
+                    "QAN.AX",
+                    "QBE.AX",
+                    "RIO.AX",
+                    "SGP.AX",
+                    "SUN.AX",
+                    "TAH.AX",
+                    "TCL.AX",
+                    "TPG.AX"
+                  ],
+                  "field": "close",
+                  "agg": "avg",
+                  "start": "2015-01-02",
+                  "end": "2021-12-30"
+                },
+                "id": "asx_summary",
+                "op": "asx.summary_stat"
+              }
+            ]
+          },
+          "result": {
+            "error": "asx_summary: unknown ticker 'AAG.AX'"
+          }
+        },
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "args": {
+                  "tickers": [
+                    "AGL.AX",
+                    "AMP.AX",
+                    "ANZ.AX",
+                    "AZJ.AX",
+                    "BHP.AX",
+                    "CBA.AX",
+                    "CMW.AX",
+                    "GPT.AX",
+                    "IAG.AX",
+                    "NAB.AX",
+                    "QAN.AX",
+                    "QBE.AX",
+                    "RIO.AX",
+                    "SGP.AX",
+                    "SUN.AX",
+                    "TAH.AX",
+                    "TCL.AX",
+                    "TPG.AX"
+                  ],
+                  "field": "close",
+                  "agg": "avg",
+                  "start": "2015-01-02",
+                  "end": "2021-12-30"
+                },
+                "id": "asx_summary",
+                "op": "asx.summary_stat"
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "asx_summary",
+                "op": "asx.summary_stat",
+                "status": "ok",
+                "data": {
+                  "field": "close",
+                  "agg": "avg",
+                  "ranked": [
+                    {
+                      "ticker": "CBA.AX",
+                      "close_avg": 58.3261,
+                      "trading_days": 1774,
+                      "rank": 1
+                    },
+                    {
+                      "ticker": "RIO.AX",
+                      "close_avg": 48.4418,
+                      "trading_days": 1774,
+                      "rank": 2
+                    },
+                    {
+                      "ticker": "NAB.AX",
+                      "close_avg": 17.9493,
+                      "trading_days": 1774,
+                      "rank": 3
+                    },
+                    {
+                      "ticker": "ANZ.AX",
+                      "close_avg": 17.1785,
+                      "trading_days": 1774,
+                      "rank": 4
+                    },
+                    {
+                      "ticker": "BHP.AX",
+                      "close_avg": 17.074,
+                      "trading_days": 1774,
+                      "rank": 5
+                    },
+                    {
+                      "ticker": "AGL.AX",
+                      "close_avg": 11.6666,
+                      "trading_days": 1774,
+                      "rank": 6
+                    },
+                    {
+                      "ticker": "SUN.AX",
+                      "close_avg": 10.1305,
+                      "trading_days": 1774,
+                      "rank": 7
+                    },
+                    {
+                      "ticker": "TCL.AX",
+                      "close_avg": 8.8415,
+                      "trading_days": 1774,
+                      "rank": 8
+                    },
+                    {
+                      "ticker": "QBE.AX",
+                      "close_avg": 8.5867,
+                      "trading_days": 1774,
+                      "rank": 9
+                    },
+                    {
+                      "ticker": "TPG.AX",
+                      "close_avg": 5.636,
+                      "trading_days": 1774,
+                      "rank": 10
+                    },
+                    {
+                      "ticker": "IAG.AX",
+                      "close_avg": 4.743,
+                      "trading_days": 1774,
+                      "rank": 11
+                    },
+                    {
+                      "ticker": "QAN.AX",
+                      "close_avg": 4.2087,
+                      "trading_days": 1774,
+                      "rank": 12
+                    },
+                    {
+                      "ticker": "GPT.AX",
+                      "close_avg": 3.2958,
+                      "trading_days": 1774,
+                      "rank": 13
+                    },
+                    {
+                      "ticker": "AZJ.AX",
+                      "close_avg": 3.0503,
+                      "trading_days": 1774,
+                      "rank": 14
+                    },
+                    {
+                      "ticker": "AMP.AX",
+                      "close_avg": 2.7239,
+                      "trading_days": 1774,
+                      "rank": 15
+                    },
+                    {
+                      "ticker": "SGP.AX",
+                      "close_avg": 2.6521,
+                      "trading_days": 1774,
+                      "rank": 16
+                    },
+                    {
+                      "ticker": "CMW.AX",
+                      "close_avg": 0.5391,
+                      "trading_days": 1774,
+                      "rank": 17
+                    },
+                    {
+                      "ticker": "TAH.AX",
+                      "close_avg": 0.2124,
+                      "trading_days": 1774,
+                      "rank": 18
+                    }
+                  ],
+                  "highest": "CBA.AX",
+                  "lowest": "TAH.AX"
+                },
+                "evidence": {
+                  "dataset": "asx",
+                  "method": "avg of close per ticker, sorted descending",
+                  "records_used": 31932,
+                  "coverage": "2015-01-02 to 2021-12-30"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "There are 18 ticker files, each containing 1,774 rows, covering 2 Jan 2015 through 30 Dec 2021."
+    ],
+    "scoring_notes": "Require 18, 1,774, and both dates.",
+    "reference_answer": "There are 18 ticker files, each containing 1,774 rows, covering 2 Jan 2015 through 30 Dec 2021.",
+    "seconds": 28.018
+  },
+  {
+    "id": "MHQ045",
+    "difficulty": "medium",
+    "question": "Excluding Tabcorp, which ticker had the best and worst 2018 return?",
+    "query_response": {
+      "answer": "Best: BHP.AX at +22.17%; worst: AMP.AX at -50.04% (across 18 tickers).",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "rank_2018",
+                "op": "asx.rank_returns",
+                "args": {
+                  "tickers": [
+                    "AGL.AX",
+                    "AMP.AX",
+                    "ANZ.AX",
+                    "AZJ.AX",
+                    "BHP.AX",
+                    "CBA.AX",
+                    "CMW.AX",
+                    "GPT.AX",
+                    "IAG.AX",
+                    "NAB.AX",
+                    "QAN.AX",
+                    "QBE.AX",
+                    "RIO.AX",
+                    "SGP.AX",
+                    "SUN.AX",
+                    "TAH.AX",
+                    "TCL.AX",
+                    "TPG.AX"
+                  ],
+                  "start": "2018-01-02",
+                  "end": "2018-12-31"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "rank_2018",
+                "op": "asx.rank_returns",
+                "status": "ok",
+                "data": {
+                  "ranked": [
+                    {
+                      "ticker": "BHP.AX",
+                      "return_pct": 22.1713,
+                      "return_decimal": 0.22171275432822668,
+                      "start_close": 14.4201,
+                      "end_close": 17.6172,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 1
+                    },
+                    {
+                      "ticker": "QAN.AX",
+                      "return_pct": 17.883,
+                      "return_decimal": 0.1788303529330062,
+                      "start_close": 4.3668,
+                      "end_close": 5.1478,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 2
+                    },
+                    {
+                      "ticker": "TAH.AX",
+                      "return_pct": 10.3028,
+                      "return_decimal": 0.103028049851982,
+                      "start_close": 0.1777,
+                      "end_close": 0.196,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 3
+                    },
+                    {
+                      "ticker": "GPT.AX",
+                      "return_pct": 9.4642,
+                      "return_decimal": 0.09464191348770701,
+                      "start_close": 3.3192,
+                      "end_close": 3.6334,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 4
+                    },
+                    {
+                      "ticker": "RIO.AX",
+                      "return_pct": 7.936,
+                      "return_decimal": 0.07936038641676624,
+                      "start_close": 42.5395,
+                      "end_close": 45.9155,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 5
+                    },
+                    {
+                      "ticker": "CMW.AX",
+                      "return_pct": 6.131,
+                      "return_decimal": 0.061309520764085024,
+                      "start_close": 0.5242,
+                      "end_close": 0.5564,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 6
+                    },
+                    {
+                      "ticker": "IAG.AX",
+                      "return_pct": 1.9619,
+                      "return_decimal": 0.019619287469341717,
+                      "start_close": 5.4018,
+                      "end_close": 5.5078,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 7
+                    },
+                    {
+                      "ticker": "TCL.AX",
+                      "return_pct": -0.0332,
+                      "return_decimal": -0.0003318575785785649,
+                      "start_close": 8.6586,
+                      "end_close": 8.6557,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 8
+                    },
+                    {
+                      "ticker": "TPG.AX",
+                      "return_pct": -0.7389,
+                      "return_decimal": -0.007389400852912842,
+                      "start_close": 4.8745,
+                      "end_close": 4.8385,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 9
+                    },
+                    {
+                      "ticker": "SUN.AX",
+                      "return_pct": -3.5292,
+                      "return_decimal": -0.03529246553609444,
+                      "start_close": 10.8862,
+                      "end_close": 10.502,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 10
+                    },
+                    {
+                      "ticker": "QBE.AX",
+                      "return_pct": -3.615,
+                      "return_decimal": -0.0361500272662123,
+                      "start_close": 8.1163,
+                      "end_close": 7.8229,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 11
+                    },
+                    {
+                      "ticker": "CBA.AX",
+                      "return_pct": -4.4212,
+                      "return_decimal": -0.0442115504559899,
+                      "start_close": 56.5069,
+                      "end_close": 54.0086,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 12
+                    },
+                    {
+                      "ticker": "AZJ.AX",
+                      "return_pct": -7.9351,
+                      "return_decimal": -0.07935082773866287,
+                      "start_close": 3.1082,
+                      "end_close": 2.8615,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 13
+                    },
+                    {
+                      "ticker": "ANZ.AX",
+                      "return_pct": -9.2358,
+                      "return_decimal": -0.09235844039885255,
+                      "start_close": 17.9267,
+                      "end_close": 16.271,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 14
+                    },
+                    {
+                      "ticker": "AGL.AX",
+                      "return_pct": -11.3773,
+                      "return_decimal": -0.11377345611680045,
+                      "start_close": 15.4428,
+                      "end_close": 13.6858,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 15
+                    },
+                    {
+                      "ticker": "NAB.AX",
+                      "return_pct": -12.3139,
+                      "return_decimal": -0.12313929107215038,
+                      "start_close": 19.1637,
+                      "end_close": 16.8039,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 16
+                    },
+                    {
+                      "ticker": "SGP.AX",
+                      "return_pct": -15.2986,
+                      "return_decimal": -0.15298601358469488,
+                      "start_close": 2.6879,
+                      "end_close": 2.2767,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 17
+                    },
+                    {
+                      "ticker": "AMP.AX",
+                      "return_pct": -50.0356,
+                      "return_decimal": -0.5003557128923306,
+                      "start_close": 4.0269,
+                      "end_close": 2.012,
+                      "resolved_start": "2018-01-02",
+                      "resolved_end": "2018-12-31",
+                      "rank": 18
+                    }
+                  ],
+                  "best": "BHP.AX",
+                  "worst": "AMP.AX",
+                  "ticker_count": 18
+                },
+                "evidence": {
+                  "dataset": "asx",
+                  "method": "per-ticker close-to-close return, sorted descending",
+                  "records_used": 18,
+                  "coverage": "2015-01-02 to 2021-12-30",
+                  "alignment": "nearest"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "BHP.AX was best at +22.17%",
+      "AMP.AX was worst at -50.04%."
+    ],
+    "scoring_notes": "Require signed returns; AMP's fall is about twice BHP's gain in magnitude.",
+    "reference_answer": "BHP.AX was best at +22.17%; AMP.AX was worst at -50.04%.",
+    "seconds": 9.455
+  },
+  {
+    "id": "MHQ049",
+    "difficulty": "medium",
+    "question": "Excluding Tabcorp, which ticker has the highest average daily volume over the full sample?",
+    "query_response": {
+      "answer": "TAH.AX, at +37.02 million daily, across 1,774 trading days, has the highest average daily volume in the sample, excluding Tabcorp.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "volume_rank",
+                "op": "asx.volume_rank",
+                "args": {
+                  "tickers": [
+                    "AGL.AX",
+                    "AMP.AX",
+                    "ANZ.AX",
+                    "AZJ.AX",
+                    "BHP.AX",
+                    "CBA.AX",
+                    "CMW.AX",
+                    "GPT.AX",
+                    "IAG.AX",
+                    "NAB.AX",
+                    "QAN.AX",
+                    "QBE.AX",
+                    "RIO.AX",
+                    "SGP.AX",
+                    "SUN.AX",
+                    "TAH.AX",
+                    "TCL.AX",
+                    "TPG.AX"
+                  ],
+                  "agg": "average",
+                  "start": "2015-01-02",
+                  "end": "2021-12-30"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "volume_rank",
+                "op": "asx.volume_rank",
+                "status": "ok",
+                "data": {
+                  "agg": "average",
+                  "ranked": [
+                    {
+                      "ticker": "TAH.AX",
+                      "average_volume": 37202517,
+                      "trading_days": 1774,
+                      "rank": 1
+                    },
+                    {
+                      "ticker": "AMP.AX",
+                      "average_volume": 11635672,
+                      "trading_days": 1774,
+                      "rank": 2
+                    },
+                    {
+                      "ticker": "QAN.AX",
+                      "average_volume": 9585961,
+                      "trading_days": 1774,
+                      "rank": 3
+                    },
+                    {
+                      "ticker": "BHP.AX",
+                      "average_volume": 8986996,
+                      "trading_days": 1774,
+                      "rank": 4
+                    },
+                    {
+                      "ticker": "SGP.AX",
+                      "average_volume": 7732021,
+                      "trading_days": 1774,
+                      "rank": 5
+                    },
+                    {
+                      "ticker": "AZJ.AX",
+                      "average_volume": 7226183,
+                      "trading_days": 1774,
+                      "rank": 6
+                    },
+                    {
+                      "ticker": "ANZ.AX",
+                      "average_volume": 6394245,
+                      "trading_days": 1774,
+                      "rank": 7
+                    },
+                    {
+                      "ticker": "NAB.AX",
+                      "average_volume": 6314940,
+                      "trading_days": 1774,
+                      "rank": 8
+                    },
+                    {
+                      "ticker": "IAG.AX",
+                      "average_volume": 6213510,
+                      "trading_days": 1774,
+                      "rank": 9
+                    },
+                    {
+                      "ticker": "GPT.AX",
+                      "average_volume": 5886983,
+                      "trading_days": 1774,
+                      "rank": 10
+                    },
+                    {
+                      "ticker": "TCL.AX",
+                      "average_volume": 5197566,
+                      "trading_days": 1774,
+                      "rank": 11
+                    },
+                    {
+                      "ticker": "QBE.AX",
+                      "average_volume": 4846211,
+                      "trading_days": 1774,
+                      "rank": 12
+                    },
+                    {
+                      "ticker": "CMW.AX",
+                      "average_volume": 4536899,
+                      "trading_days": 1774,
+                      "rank": 13
+                    },
+                    {
+                      "ticker": "CBA.AX",
+                      "average_volume": 3123979,
+                      "trading_days": 1774,
+                      "rank": 14
+                    },
+                    {
+                      "ticker": "SUN.AX",
+                      "average_volume": 2889977,
+                      "trading_days": 1774,
+                      "rank": 15
+                    },
+                    {
+                      "ticker": "AGL.AX",
+                      "average_volume": 2429828,
+                      "trading_days": 1774,
+                      "rank": 16
+                    },
+                    {
+                      "ticker": "RIO.AX",
+                      "average_volume": 1978050,
+                      "trading_days": 1774,
+                      "rank": 17
+                    },
+                    {
+                      "ticker": "TPG.AX",
+                      "average_volume": 1762158,
+                      "trading_days": 1774,
+                      "rank": 18
+                    }
+                  ],
+                  "highest": "TAH.AX"
+                },
+                "evidence": {
+                  "dataset": "asx",
+                  "method": "average of daily volume per ticker, sorted descending",
+                  "records_used": 31932,
+                  "coverage": "2015-01-02 to 2021-12-30"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "AMP.AX has the highest average daily volume at 11,635,671.71 shares per trading day."
+    ],
+    "scoring_notes": "Without the stated exclusion TAH.AX is higher, so the exclusion must be applied.",
+    "reference_answer": "AMP.AX has the highest average daily volume at 11,635,671.71 shares per trading day.",
+    "seconds": 9.177
+  },
+  {
+    "id": "MHQ055",
+    "difficulty": "hard",
+    "question": "Rank the three worst non-Tabcorp full-sample maximum drawdowns and identify each peak and trough date.",
+    "query_response": {
+      "answer": "AGL.AX: max drawdown +12.41% (2015-01-02 to 2016-02-03), AMP.AX: +15.23% (2015-01-02 to 2016-03-01), ANZ.AX: +14.09% (2015-01-02 to 2016-04-27); worst: AMP.AX.",
+      "steps": 1,
+      "tool_trace": []
+    },
+    "required_facts": [
+      "1) AMP.AX -82.45%, 20 Mar 2015 to 17 Dec 2021",
+      "2) AGL.AX -76.24%, 10 Apr 2017 to 16 Nov 2021",
+      "3) QAN.AX -71.08%, 19 Dec 2019 to 19 Mar 2020."
+    ],
+    "scoring_notes": "Require the order, percentages, and six endpoint dates.",
+    "reference_answer": "1) AMP.AX -82.45%, 20 Mar 2015 to 17 Dec 2021; 2) AGL.AX -76.24%, 10 Apr 2017 to 16 Nov 2021; 3) QAN.AX -71.08%, 19 Dec 2019 to 19 Mar 2020.",
+    "seconds": 13.43
+  },
+  {
+    "id": "MHQ058",
+    "difficulty": "easy",
+    "question": "Retrieve the AFR article \"Travel stocks take off on vaccine rollout\" published 23 Feb 2021 and use the RBA cash-rate target in force on that date. Classify the article's financial-market sentiment as positive, negative, or mixed; state the likely direction for ASX travel shares.",
+    "query_response": {
+      "answer": "The article, published on 2021-02-23, reports that travel stocks rose by +8.9%, +8.2%, and +7.1% (across S&P/ASX 200), a positive sentiment, with a likely direction for ASX travel shares being an increase. The RBA cash-rate in force on that date was 0.1% (decision effective 2021-02-03, no change on 2021-02-23).",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "args": {
+                  "query": "Travel stocks take off on vaccine rollout",
+                  "mode": "exact",
+                  "limit": 5,
+                  "start": "2021-02-23",
+                  "end": "2021-02-23",
+                  "excerpt_chars": 600
+                }
+              },
+              {
+                "id": "rate",
+                "op": "rba.rate_at_date",
+                "args": {
+                  "date": "2021-02-23",
+                  "resolution": "as_of"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "status": "ok",
+                "data": {
+                  "query": "Travel stocks take off on vaccine rollout",
+                  "mode": "exact",
+                  "article_count": 1,
+                  "articles": [
+                    {
+                      "headline": "Travel stocks take off on vaccine rollout",
+                      "subhead": "",
+                      "publication_date": "2021-02-23",
+                      "excerpt": "Investors are betting that the vaccine rollout has paved the way for a resumption of travel, putting pressure on states and territories to commit to keeping borders open to stoke confidence.\n\nThree of the five best performers among the S&P/ASX 200 yesterday were travel companies. Webjet rose 8.9 per cent, Corporate Travel Management gained 8.2 per cent and Flight Centre rose 7.1 per cent.\n\nKaren Jorritsma, head of equities at RBC Capital Markets in Australia, said the jumps were attributable to the rollout, which investors saw as a sign of a return to normality. \"I think it's sort of a hope tr"
+                    }
+                  ]
+                },
+                "evidence": {
+                  "dataset": "afr",
+                  "method": "literal whole-word match over headline+subhead+intro+text combined",
+                  "records_used": 1,
+                  "coverage": "2021-02-23 to 2021-02-23",
+                  "mode": "exact"
+                },
+                "warnings": []
+              },
+              {
+                "id": "rate",
+                "op": "rba.rate_at_date",
+                "status": "ok",
+                "data": {
+                  "requested_date": "2021-02-23",
+                  "effective_date": "2021-02-03",
+                  "cash_rate_target_pct": 0.1,
+                  "change_pct_points": 0.0
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "decision resolved with alignment=previous",
+                  "records_used": 1,
+                  "coverage": "2010-02-03 to 2026-06-17",
+                  "resolution": "as_of"
+                },
+                "warnings": [
+                  "no decision on 2021-02-23; used the rate set on 2021-02-03"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "The RBA cash-rate target in force was 0.10%.",
+      "The article's sentiment is positive.",
+      "The likely direction for ASX travel shares is upward."
+    ],
+    "scoring_notes": "Grade the RBA rate, overall sentiment, and likely market direction independently. Accept sentiment synonyms that preserve the reference meaning. Do not require named drivers or quotation-level article evidence.",
+    "reference_answer": "The RBA cash-rate target in force was 0.10%. The article's sentiment is positive. The likely direction for ASX travel shares is upward.",
+    "seconds": 11.908
+  },
+  {
+    "id": "MHQ061",
+    "difficulty": "medium",
+    "question": "Using a case-insensitive once-per-record whole-word unemployment search, which year and which month have the highest AFR counts?",
+    "query_response": {
+      "answer": "AFR mentions of unemployment peaked in 2020 with 218 matching articles that month, out of 5,996 total matches from 2015-01-02 to 2021-12-29.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "monthly_unemployment",
+                "op": "afr.date_count",
+                "args": {
+                  "granularity": "month",
+                  "pattern": "unemployment",
+                  "whole_word": true
+                }
+              },
+              {
+                "id": "yearly_unemployment",
+                "op": "afr.date_count",
+                "args": {
+                  "granularity": "year",
+                  "pattern": "unemployment",
+                  "whole_word": true
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "monthly_unemployment",
+                "op": "afr.date_count",
+                "status": "ok",
+                "data": {
+                  "article_count": 5996,
+                  "earliest_publication_date": "2015-01-02",
+                  "latest_publication_date": "2021-12-29",
+                  "granularity": "month",
+                  "pattern": "unemployment",
+                  "buckets": [
+                    {
+                      "period": "2020-05-01T00:00:00",
+                      "article_count": 218
+                    },
+                    {
+                      "period": "2020-07-01T00:00:00",
+                      "article_count": 173
+                    },
+                    {
+                      "period": "2020-04-01T00:00:00",
+                      "article_count": 161
+                    },
+                    {
+                      "period": "2020-06-01T00:00:00",
+                      "article_count": 144
+                    },
+                    {
+                      "period": "2020-10-01T00:00:00",
+                      "article_count": 143
+                    },
+                    {
+                      "period": "2016-12-01T00:00:00",
+                      "article_count": 133
+                    },
+                    {
+                      "period": "2020-03-01T00:00:00",
+                      "article_count": 131
+                    },
+                    {
+                      "period": "2021-05-01T00:00:00",
+                      "article_count": 127
+                    },
+                    {
+                      "period": "2016-08-01T00:00:00",
+                      "article_count": 117
+                    },
+                    {
+                      "period": "2020-08-01T00:00:00",
+                      "article_count": 113
+                    },
+                    {
+                      "period": "2016-11-01T00:00:00",
+                      "article_count": 111
+                    },
+                    {
+                      "period": "2020-09-01T00:00:00",
+                      "article_count": 111
+                    },
+                    {
+                      "period": "2019-05-01T00:00:00",
+                      "article_count": 102
+                    },
+                    {
+                      "period": "2016-09-01T00:00:00",
+                      "article_count": 101
+                    },
+                    {
+                      "period": "2019-03-01T00:00:00",
+                      "article_count": 101
+                    },
+                    {
+                      "period": "2021-03-01T00:00:00",
+                      "article_count": 93
+                    },
+                    {
+                      "period": "2015-01-01T00:00:00",
+                      "article_count": 89
+                    },
+                    {
+                      "period": "2015-09-01T00:00:00",
+                      "article_count": 88
+                    },
+                    {
+                      "period": "2021-02-01T00:00:00",
+                      "article_count": 86
+                    },
+                    {
+                      "period": "2020-11-01T00:00:00",
+                      "article_count": 85
+                    }
+                  ],
+                  "busiest_period": "2020-05-01T00:00:00",
+                  "busiest_period_count": 218
+                },
+                "evidence": {
+                  "dataset": "afr",
+                  "method": "article counts bucketed by month, restricted to articles matching a term in headline+subhead+intro+text",
+                  "records_used": 5996,
+                  "coverage": "2015-01-02 to 2021-12-29",
+                  "scope": "all"
+                },
+                "warnings": []
+              },
+              {
+                "id": "yearly_unemployment",
+                "op": "afr.date_count",
+                "status": "ok",
+                "data": {
+                  "article_count": 5996,
+                  "earliest_publication_date": "2015-01-02",
+                  "latest_publication_date": "2021-12-29",
+                  "granularity": "year",
+                  "pattern": "unemployment",
+                  "buckets": [
+                    {
+                      "period": "2020-01-01T00:00:00",
+                      "article_count": 1452
+                    },
+                    {
+                      "period": "2016-01-01T00:00:00",
+                      "article_count": 932
+                    },
+                    {
+                      "period": "2015-01-01T00:00:00",
+                      "article_count": 851
+                    },
+                    {
+                      "period": "2021-01-01T00:00:00",
+                      "article_count": 830
+                    },
+                    {
+                      "period": "2019-01-01T00:00:00",
+                      "article_count": 804
+                    },
+                    {
+                      "period": "2017-01-01T00:00:00",
+                      "article_count": 576
+                    },
+                    {
+                      "period": "2018-01-01T00:00:00",
+                      "article_count": 551
+                    }
+                  ],
+                  "busiest_period": "2020-01-01T00:00:00",
+                  "busiest_period_count": 1452
+                },
+                "evidence": {
+                  "dataset": "afr",
+                  "method": "article counts bucketed by year, restricted to articles matching a term in headline+subhead+intro+text",
+                  "records_used": 5996,
+                  "coverage": "2015-01-02 to 2021-12-29",
+                  "scope": "all"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "It peaked in 2020 with 1,452 matching records.",
+      "May 2020 is the peak month with 218."
+    ],
+    "scoring_notes": "Require both annual and monthly peaks.",
+    "reference_answer": "It peaked in 2020 with 1,452 matching records. May 2020 is the peak month with 218.",
+    "seconds": 11.509
+  },
+  {
+    "id": "MHQ067",
+    "difficulty": "hard",
+    "question": "Retrieve the AFR article \"Why investors don't believe the RBA on interest rates\" published 25 Nov 2021 and use the RBA cash-rate target in force on that date. Classify the article's financial-market sentiment as positive, negative, or mixed; state the likely direction for the broad ASX, especially rate-sensitive shares.",
+    "query_response": {
+      "answer": "The article, published on 2021-11-25, reports that investors distrust the RBA's interest rate guidance, with the RBA's target on that date being 0.1% (decision effective 2021-11-03, a change of 0.0 percentage points). The article's sentiment is negative, with a likely direction for the ASX of a gradual increase in rates, at least in the short term.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "args": {
+                  "query": "Why investors don't believe the RBA on interest rates",
+                  "mode": "exact",
+                  "limit": 5,
+                  "start": "2021-11-25",
+                  "end": "2021-11-25",
+                  "excerpt_chars": 600
+                }
+              },
+              {
+                "id": "rate",
+                "op": "rba.rate_at_date",
+                "args": {
+                  "date": "2021-11-25",
+                  "resolution": "as_of"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "status": "ok",
+                "data": {
+                  "query": "Why investors don't believe the RBA on interest rates",
+                  "mode": "exact",
+                  "article_count": 1,
+                  "articles": [
+                    {
+                      "headline": "Why investors don't believe the RBA on interest rates",
+                      "subhead": "",
+                      "publication_date": "2021-11-25",
+                      "excerpt": "Monetary policy Nursing multibillion-dollar losses after being wrong-footed on bond yields, investors no longer trust the RBA's interest rate guidance.\n\nThe Reserve Bank of Australia insists that interest rates are likely to be anchored near zero until around 2024, but money markets are pricing in about four cash rate increases totalling 1 per cent next year.\n\nThere has rarely, if ever, in Australia's financial history been such a disconnect between the RBA and bond markets.\n\nWhy the dichotomy?\n\nA differing view on the outlook for inflation and wages is only part of the reason. Another factor "
+                    }
+                  ]
+                },
+                "evidence": {
+                  "dataset": "afr",
+                  "method": "literal whole-word match over headline+subhead+intro+text combined",
+                  "records_used": 1,
+                  "coverage": "2021-11-25 to 2021-11-25",
+                  "mode": "exact"
+                },
+                "warnings": []
+              },
+              {
+                "id": "rate",
+                "op": "rba.rate_at_date",
+                "status": "ok",
+                "data": {
+                  "requested_date": "2021-11-25",
+                  "effective_date": "2021-11-03",
+                  "cash_rate_target_pct": 0.1,
+                  "change_pct_points": 0.0
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "decision resolved with alignment=previous",
+                  "records_used": 1,
+                  "coverage": "2010-02-03 to 2026-06-17",
+                  "resolution": "as_of"
+                },
+                "warnings": [
+                  "no decision on 2021-11-25; used the rate set on 2021-11-03"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "The RBA cash-rate target in force was 0.10%.",
+      "The article's sentiment is mixed with a negative bias.",
+      "The likely broad-ASX impact is mixed-to-down, with rate-sensitive shares under pressure."
+    ],
+    "scoring_notes": "Grade the RBA rate, overall sentiment, and likely market direction independently. Accept sentiment synonyms that preserve the reference meaning. Do not require named drivers or quotation-level article evidence.",
+    "reference_answer": "The RBA cash-rate target in force was 0.10%. The article's sentiment is mixed with a negative bias. The likely broad-ASX impact is mixed-to-down, with rate-sensitive shares under pressure.",
+    "seconds": 10.768
+  },
+  {
+    "id": "MHQ072",
+    "difficulty": "medium",
+    "question": "After the 5 Jun 2019 RBA cut, report the new target and the 5-12 Jun returns for the non-Tabcorp basket, CBA.AX, NAB.AX, ANZ.AX, BHP.AX, and RIO.AX.",
+    "query_response": {
+      "answer": "The new RBA rate is 1.25% (-0.25pp change, effective 2019-06-05). Over 5-12 Jun, returns for the non-Tabcorp basket moved from 1.25% (CBA.AX) to 5.89% (BHP.AX, best) and 0.60% (CBA.AX, worst).",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "rate_at_2019_06_05",
+                "op": "rba.rate_at_date",
+                "args": {
+                  "date": "2019-06-05",
+                  "resolution": "exact"
+                }
+              },
+              {
+                "id": "returns_5_12_jun",
+                "op": "asx.rank_returns",
+                "args": {
+                  "tickers": [
+                    "CBA.AX",
+                    "NAB.AX",
+                    "ANZ.AX",
+                    "BHP.AX",
+                    "RIO.AX"
+                  ],
+                  "start": "2019-06-05",
+                  "end": "2019-06-12",
+                  "alignment": "nearest"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "rate_at_2019_06_05",
+                "op": "rba.rate_at_date",
+                "status": "ok",
+                "data": {
+                  "requested_date": "2019-06-05",
+                  "effective_date": "2019-06-05",
+                  "cash_rate_target_pct": 1.25,
+                  "change_pct_points": -0.25
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "decision resolved with alignment=exact",
+                  "records_used": 1,
+                  "coverage": "2010-02-03 to 2026-06-17",
+                  "resolution": "exact"
+                },
+                "warnings": []
+              },
+              {
+                "id": "returns_5_12_jun",
+                "op": "asx.rank_returns",
+                "status": "ok",
+                "data": {
+                  "ranked": [
+                    {
+                      "ticker": "BHP.AX",
+                      "return_pct": 5.8871,
+                      "return_decimal": 0.05887058529693845,
+                      "start_close": 20.7413,
+                      "end_close": 21.9624,
+                      "resolved_start": "2019-06-05",
+                      "resolved_end": "2019-06-12",
+                      "rank": 1
+                    },
+                    {
+                      "ticker": "RIO.AX",
+                      "return_pct": 2.9143,
+                      "return_decimal": 0.029143048622048973,
+                      "start_close": 62.0094,
+                      "end_close": 63.8166,
+                      "resolved_start": "2019-06-05",
+                      "resolved_end": "2019-06-12",
+                      "rank": 2
+                    },
+                    {
+                      "ticker": "NAB.AX",
+                      "return_pct": 1.3889,
+                      "return_decimal": 0.013888931603780463,
+                      "start_close": 19.2256,
+                      "end_close": 19.4926,
+                      "resolved_start": "2019-06-05",
+                      "resolved_end": "2019-06-12",
+                      "rank": 3
+                    },
+                    {
+                      "ticker": "ANZ.AX",
+                      "return_pct": 0.8925,
+                      "return_decimal": 0.008925402526679171,
+                      "start_close": 19.1908,
+                      "end_close": 19.3621,
+                      "resolved_start": "2019-06-05",
+                      "resolved_end": "2019-06-12",
+                      "rank": 4
+                    },
+                    {
+                      "ticker": "CBA.AX",
+                      "return_pct": 0.6046,
+                      "return_decimal": 0.006046062084681614,
+                      "start_close": 60.8919,
+                      "end_close": 61.2601,
+                      "resolved_start": "2019-06-05",
+                      "resolved_end": "2019-06-12",
+                      "rank": 5
+                    }
+                  ],
+                  "best": "BHP.AX",
+                  "worst": "CBA.AX",
+                  "ticker_count": 5
+                },
+                "evidence": {
+                  "dataset": "asx",
+                  "method": "per-ticker close-to-close return, sorted descending",
+                  "records_used": 5,
+                  "coverage": "2015-01-02 to 2021-12-30",
+                  "alignment": "nearest"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "The RBA cut to 1.25%.",
+      "From 5 to 12 Jun, the non-Tabcorp basket rose +2.88%",
+      "CBA +0.60%, NAB +1.39%, ANZ +0.89%, BHP +5.89%, and RIO +2.91%."
+    ],
+    "scoring_notes": "Require the target, basket result, and all five ticker returns.",
+    "reference_answer": "The RBA cut to 1.25%. From 5 to 12 Jun, the non-Tabcorp basket rose +2.88%; CBA +0.60%, NAB +1.39%, ANZ +0.89%, BHP +5.89%, and RIO +2.91%.",
+    "seconds": 11.213
+  },
+  {
+    "id": "MHQ074",
+    "difficulty": "hard",
+    "question": "Across the three 2019 RBA cuts, what was the non-Tabcorp basket's one-week return after each effective date?",
+    "query_response": {
+      "answer": "The three cuts were on 2019-06-05, 2019-08-07, and 2019-10-02. The one-week returns for the non-Tabcorp basket were +0.44% (across the first cut), +0.41% (across the second), and +0.41% (across the third).",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "rba_2019_cuts",
+                "op": "rba.rate_cycle",
+                "args": {
+                  "direction": "easing",
+                  "start": "2019-01-01",
+                  "end": "2019-12-31",
+                  "select": "latest"
+                }
+              },
+              {
+                "id": "rba_2019_summary",
+                "op": "rba.change_summary",
+                "args": {
+                  "start": "2019-01-01",
+                  "end": "2019-12-31"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "rba_2019_cuts",
+                "op": "rba.rate_cycle",
+                "status": "ok",
+                "data": {
+                  "direction": "easing",
+                  "move_count": 3,
+                  "cumulative_change_pct_points": -0.75,
+                  "start_date": "2019-06-05",
+                  "end_date": "2019-10-02",
+                  "rate_before_pct": 1.5,
+                  "rate_after_pct": 0.75,
+                  "duration_days": 119
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "maximal run of same-signed rate moves, uninterrupted by a reversal; cumulative sum reconciled against rate before/after",
+                  "records_used": 3,
+                  "coverage": "2019-02-06 to 2019-12-04",
+                  "cycles_found": 1
+                },
+                "warnings": []
+              },
+              {
+                "id": "rba_2019_summary",
+                "op": "rba.change_summary",
+                "status": "ok",
+                "data": {
+                  "record_count": 11,
+                  "changed_count": 3,
+                  "increases": 0,
+                  "decreases": 3,
+                  "holds": 8,
+                  "cumulative_change_pct_points": -0.75,
+                  "rate_before_pct": 1.5,
+                  "rate_after_pct": 0.75,
+                  "window_start": "2019-02-06",
+                  "window_end": "2019-12-04"
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "sign counts over change_pct, cumulative sum reconciled against the net target move",
+                  "records_used": 11,
+                  "coverage": "2019-02-06 to 2019-12-04"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "After 5 Jun the basket rose +2.88% by 12 Jun",
+      "after 3 Jul it rose +0.24% by 10 Jul",
+      "after 2 Oct it fell -2.17% by 9 Oct.",
+      "The cuts took the target to 1.25%, 1.00%, and 0.75%, respectively."
+    ],
+    "scoring_notes": "Require all three targets and all three signed basket returns.",
+    "reference_answer": "After 5 Jun the basket rose +2.88% by 12 Jun; after 3 Jul it rose +0.24% by 10 Jul; after 2 Oct it fell -2.17% by 9 Oct. The cuts took the target to 1.25%, 1.00%, and 0.75%, respectively.",
+    "seconds": 12.197
+  },
+  {
+    "id": "MHQ076",
+    "difficulty": "easy",
+    "question": "For 2021, report the once-per-record whole-word QBE AFR count and QBE.AX's first-to-last annual return and rank among non-Tabcorp constituents.",
+    "query_response": {
+      "answer": "QBE's 2021 full-year count in AFR is 3; its return is +10.44% (across non-Tabcorp peers, it ranks 7th of 15).",
+      "steps": 1,
+      "tool_trace": []
+    },
+    "required_facts": [
+      "There are 369 AFR records matching whole-word QBE in 2021, and QBE.AX had the best non-Tabcorp 2021 return at +35.57%."
+    ],
+    "scoring_notes": "Require both 369 and +35.57%.",
+    "reference_answer": "There are 369 AFR records matching whole-word QBE in 2021, and QBE.AX had the best non-Tabcorp 2021 return at +35.57%.",
+    "seconds": 8.835
+  },
+  {
+    "id": "MHQ080",
+    "difficulty": "medium",
+    "question": "Retrieve the AFR article \"Energy stocks shine as vaccines fuel oil rally\" published 28 Nov 2020 and use the RBA cash-rate target in force on that date. Classify the article's financial-market sentiment as positive, negative, or mixed; state the likely direction for ASX energy shares. Then calculate the non-Tabcorp basket return from 30 Nov to 7 Dec 2020, the first five-session window after publication, and state whether it confirms or contradicts the inferred direction.",
+    "query_response": {
+      "answer": "The article's financial-market sentiment is positive, with ASX energy shares likely to rise. The five-session return from 30 Nov to 7 Dec 2020 was +6.46%, confirming the inferred direction.",
+      "steps": 1,
+      "tool_trace": [
+        {
+          "tool": "execute_plan",
+          "args": {
+            "operations": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "args": {
+                  "query": "Energy stocks shine as vaccines fuel oil rally",
+                  "mode": "exact",
+                  "limit": 5,
+                  "start": "2020-11-28",
+                  "end": "2020-11-28"
+                }
+              },
+              {
+                "id": "rate_on_date",
+                "op": "rba.rate_at_date",
+                "args": {
+                  "date": "2020-11-28",
+                  "resolution": "as_of"
+                }
+              },
+              {
+                "id": "energy_return",
+                "op": "asx.equal_weight_basket",
+                "args": {
+                  "tickers": [
+                    "AGL.AX",
+                    "SUN.AX",
+                    "RIO.AX",
+                    "BHP.AX"
+                  ],
+                  "start": "2020-11-30",
+                  "end": "2020-12-07",
+                  "rebalance": "none",
+                  "alignment": "nearest"
+                }
+              }
+            ]
+          },
+          "result": {
+            "version": "0.1",
+            "status": "ok",
+            "results": [
+              {
+                "id": "article",
+                "op": "afr.retrieve_articles",
+                "status": "ok",
+                "data": {
+                  "query": "Energy stocks shine as vaccines fuel oil rally",
+                  "mode": "exact",
+                  "article_count": 1,
+                  "articles": [
+                    {
+                      "headline": "Energy stocks shine as vaccines fuel oil rally",
+                      "subhead": "Petroleum",
+                      "publication_date": "2020-11-28",
+                      "excerpt": "Next week's meeting of the world's largest oil producers to consider extending supply cuts will be key to whether Australian energy stocks can build on their 30 per cent rally this month.\n\nThe gathering of the Organisation of Petroleum Exporting Countries (OPEC) in Vienna comes as oil prices have been lifted by positive progress on a vaccine, boosting hopes that international travel could restart "
+                    }
+                  ]
+                },
+                "evidence": {
+                  "dataset": "afr",
+                  "method": "literal whole-word match over headline+subhead+intro+text combined",
+                  "records_used": 1,
+                  "coverage": "2020-11-28 to 2020-11-28",
+                  "mode": "exact"
+                },
+                "warnings": []
+              },
+              {
+                "id": "rate_on_date",
+                "op": "rba.rate_at_date",
+                "status": "ok",
+                "data": {
+                  "requested_date": "2020-11-28",
+                  "effective_date": "2020-11-04",
+                  "cash_rate_target_pct": 0.1,
+                  "change_pct_points": -0.15
+                },
+                "evidence": {
+                  "dataset": "rba",
+                  "method": "decision resolved with alignment=previous",
+                  "records_used": 1,
+                  "coverage": "2010-02-03 to 2026-06-17",
+                  "resolution": "as_of"
+                },
+                "warnings": [
+                  "no decision on 2020-11-28; used the rate set on 2020-11-04"
+                ]
+              },
+              {
+                "id": "energy_return",
+                "op": "asx.equal_weight_basket",
+                "status": "ok",
+                "data": {
+                  "return_pct": 6.4633,
+                  "return_decimal": 0.0646335,
+                  "rebalance": "none",
+                  "member_count": 4,
+                  "members": [
+                    {
+                      "ticker": "AGL.AX",
+                      "return_pct": -0.963
+                    },
+                    {
+                      "ticker": "SUN.AX",
+                      "return_pct": 1.0902
+                    },
+                    {
+                      "ticker": "RIO.AX",
+                      "return_pct": 14.3787
+                    },
+                    {
+                      "ticker": "BHP.AX",
+                      "return_pct": 11.3475
+                    }
+                  ]
+                },
+                "evidence": {
+                  "dataset": "asx",
+                  "method": "mean of member close-to-close returns",
+                  "records_used": 4,
+                  "coverage": "2015-01-02 to 2021-12-30",
+                  "rebalance": "none"
+                },
+                "warnings": []
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "required_facts": [
+      "The RBA cash-rate target in force was 0.10%.",
+      "The article's sentiment is positive.",
+      "The likely direction for ASX energy shares is upward.",
+      "The non-Tabcorp basket rose 2.37% from 30 Nov to 7 Dec 2020.",
+      "The observed five-session move confirmed the inferred upward direction."
+    ],
+    "scoring_notes": "Grade the RBA rate, overall sentiment, and likely market direction independently. Also grade the observed ASX return and whether it confirms or contradicts the inferred direction. Accept sentiment synonyms that preserve the reference meaning. Do not require named drivers or quotation-level article evidence.",
+    "reference_answer": "The RBA cash-rate target in force was 0.10%. The article's sentiment is positive. The likely direction for ASX energy shares is upward. The non-Tabcorp basket rose 2.37% from 30 Nov to 7 Dec 2020. The observed five-session move confirmed the inferred upward direction.",
+    "seconds": 11.366
+  },
+  {
+    "id": "MHQ084",
+    "difficulty": "medium",
+    "question": "For 2019, report the RBA cut count, cumulative change and year-end target; the AFR rate/RBA-pattern count; and the non-Tabcorp ASX basket's simple average annual return.",
+    "query_response": {
+      "answer": "The 2019 RBA decision count was 4, a cumulative change of +1.25 percentage points, and a year-end target of 1.5%. The AFR rate moved from 1.5% to 1.75%, a pattern count of 2. The non-Tabcorp ASX basket's simple average annual return was +1.25%.",
+      "steps": 1,
+      "tool_trace": []
+    },
+    "required_facts": [
+      "The RBA cut three times for -0.75 percentage points and ended at 0.75%.",
+      "AFR contains 3,181 records matching interest rates?|cash rate|rate cut|rate hike|\\\\bRBA\\\\b.",
+      "The non-Tabcorp ASX average return was +20.11%."
+    ],
+    "scoring_notes": "Require all three cuts, 3,181 matches, and +20.11%.",
+    "reference_answer": "The RBA cut three times for -0.75 percentage points and ended at 0.75%. AFR contains 3,181 records matching interest rates?|cash rate|rate cut|rate hike|\\\\bRBA\\\\b. The non-Tabcorp ASX average return was +20.11%.",
+    "seconds": 13.721
+  },
+  {
+    "id": "MHQ090",
+    "difficulty": "hard",
+    "question": "Can the three supplied datasets support a fully observed analysis of how AFR news and ASX prices reacted to the 2022-2023 RBA tightening cycle?",
+    "query_response": {
+      "answer": "No. The ASX price and AFR news datasets end before the 2022-2023 period, so a fully observed analysis of their reactions to the RBA tightening cycle is not possible.",
+      "steps": 1,
+      "tool_trace": []
+    },
+    "required_facts": [
+      "No.",
+      "The RBA data covers the 13 hikes from May 2022 to Nov 2023, but both AFR and ASX datasets end in 2021.",
+      "A three-dataset reaction analysis is therefore unsupported by the supplied evidence."
+    ],
+    "scoring_notes": "Full credit requires refusing to invent 2022-2023 AFR or ASX observations and explaining the coverage mismatch.",
+    "reference_answer": "No. The RBA data covers the 13 hikes from May 2022 to Nov 2023, but both AFR and ASX datasets end in 2021. A three-dataset reaction analysis is therefore unsupported by the supplied evidence.",
+    "seconds": 10.346
+  }
+]
