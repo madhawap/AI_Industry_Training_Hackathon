@@ -1,4 +1,11 @@
-"""Tool base types for the central registry."""
+"""Tool base types for the central registry.
+
+A *tool* here is anything the planning model may call through the OpenAI
+function-calling protocol. Every tool is described by a :class:`ToolSpec`
+(name + description + Pydantic args schema + async executor + timeout) and
+registered with the :class:`~src.tools.registry.ToolRegistry`. See
+ARCHITECTURE.md ("Tool registry") for how to add a new tool.
+"""
 
 from __future__ import annotations
 
@@ -9,25 +16,40 @@ from pydantic import BaseModel, Field
 
 InputT = TypeVar("InputT", bound=BaseModel)
 
-# async (validated_input) -> structured result
-ToolFn = Callable[[BaseModel], Awaitable[Any]]
-
 
 class ToolResult(BaseModel):
-    """Structured result returned by every tool execution."""
+    """Structured result returned by every tool execution.
+
+    Three shapes are possible:
+      - success:            ``success=True``,  ``data`` set, ``error=None``
+      - partial success:    ``success=True``,  ``data`` set, ``error`` = warning text
+      - failure:            ``success=False``, ``error`` = failure text
+    """
 
     success: bool = True
     data: Any = None
     error: str | None = None
 
     def as_trace_result(self) -> Any:
+        """Flatten into the payload stored in ``tool_trace`` / shown to the LLM."""
         if self.success:
             return self.data if self.error is None else {"data": self.data, "warning": self.error}
         return {"error": self.error or "tool failed"}
 
 
 class ToolSpec(Generic[InputT]):
-    """Definition of a single registered tool."""
+    """Definition of a single registered tool.
+
+    Args:
+        name: Function name the model calls (must be unique in the registry).
+        description: What the model reads when deciding whether/how to call
+            the tool. This is effectively a prompt — be precise about argument
+            values and when the tool applies.
+        args_schema: Pydantic model for the arguments; the registry validates
+            raw args against it before the executor ever runs.
+        execute: ``async (validated_args) -> ToolResult``.
+        timeout: Per-call wall-clock budget enforced by the registry.
+    """
 
     def __init__(
         self,
@@ -60,6 +82,8 @@ class ToolSpec(Generic[InputT]):
 
 
 class ToolCallRecord(BaseModel):
+    """One executed tool call — the unit stored in the API's ``tool_trace``."""
+
     tool: str
     args: dict[str, Any] = Field(default_factory=dict)
     result: Any = None

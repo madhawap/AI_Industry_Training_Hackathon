@@ -1,4 +1,17 @@
-"""Application configuration loaded from config.yaml with env-var expansion."""
+"""Application configuration loaded from config.yaml with env-var expansion.
+
+Resolution order (last one wins):
+
+1. ``Settings`` field defaults (hard-coded below)
+2. ``config.yaml`` at the repo root (or the file named by ``APP_CONFIG``),
+   with ``${VAR}`` / ``${VAR:-default}`` placeholders expanded from the
+   environment
+3. A small set of environment variables (``LITELLM_BASE_URL``, ``LITELLM_KEY``,
+   ``BRAIN_MODEL``, ``MAX_AGENT_STEPS``, ``DOMAIN_FT_MODEL``,
+   ``DOMAIN_PREDICT_MODE``, ``ENABLE_THINKING``) that always override the file
+
+``get_settings()`` is cached — the config is read once per process.
+"""
 
 from __future__ import annotations
 
@@ -38,8 +51,10 @@ def _expand_tree(node: Any) -> Any:
 
 
 class Settings(BaseModel):
+    """Validated runtime settings; see config.yaml for per-knob commentary."""
+
     host: str = "0.0.0.0"
-    port: int = 8001
+    port: int = 8011
 
     litellm_base_url: str = Field(alias="litellm_base_url")
     litellm_key: str = ""
@@ -60,8 +75,8 @@ class Settings(BaseModel):
     # never needs to reason about arithmetic. Left on, a single question
     # breaches the 60s scoring cliff on planning alone.
     enable_thinking: bool = False
-    max_tokens_brain: int = 4096
-    max_tokens_synthesis: int = 8192
+    max_tokens_brain: int = 256
+    max_tokens_synthesis: int = 512
 
     max_concurrent_queries: int = 16
     http_max_connections: int = 32
@@ -134,6 +149,7 @@ def _default_config_path() -> Path:
 
 @lru_cache(maxsize=1)
 def get_settings(config_path: str | None = None) -> Settings:
+    """Load settings once (cached): .env → config.yaml → env overrides."""
     try:
         from dotenv import load_dotenv
 

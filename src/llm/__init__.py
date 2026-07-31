@@ -1,5 +1,5 @@
 """LiteLLM client helpers."""
 
-from src.llm.client import LLMClients
+from src.llm.client import LLMClients, UpstreamModelError
 
-__all__ = ["LLMClients"]
+__all__ = ["LLMClients", "UpstreamModelError"]

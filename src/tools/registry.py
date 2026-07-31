@@ -1,4 +1,16 @@
-"""Central async tool registry used by the Qwen agent."""
+"""Central async tool registry used by the Qwen agent.
+
+The registry is the single choke point between the LLM and any side effect:
+every tool call the planner emits goes through :meth:`ToolRegistry.execute_one`,
+which guarantees three things regardless of how the tool itself behaves:
+
+1. **Validation** — raw JSON args are checked against the tool's Pydantic
+   schema before its code runs.
+2. **Timeout** — each call is bounded by the tool's own wall-clock budget.
+3. **No exceptions escape** — unknown tools, bad args, timeouts and crashes
+   all come back as structured ``{"error": ...}`` records the agent can read,
+   never as a broken graph run.
+"""
 
 from __future__ import annotations
 
@@ -20,6 +32,7 @@ class ToolRegistry:
         self._tools: dict[str, ToolSpec[Any]] = {}
 
     def register(self, tool: ToolSpec[Any]) -> None:
+        """Add a tool; duplicate names are a programming error, so fail loudly."""
         if tool.name in self._tools:
             raise ValueError(f"Tool already registered: {tool.name}")
         self._tools[tool.name] = tool
@@ -32,9 +45,11 @@ class ToolRegistry:
         return list(self._tools.values())
 
     def openai_tools(self) -> list[dict[str, Any]]:
+        """OpenAI function-calling schemas for every registered tool."""
         return [t.openai_schema() for t in self._tools.values()]
 
     async def execute_one(self, name: str, args: dict[str, Any]) -> ToolCallRecord:
+        """Validate and run a single tool call; never raises (see module doc)."""
         tool = self._tools.get(name)
         if tool is None:
             return ToolCallRecord(

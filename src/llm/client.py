@@ -14,12 +14,51 @@ Traffic path:
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, NoReturn
 
 import httpx
-from openai import AsyncOpenAI
+from openai import APIConnectionError, APIStatusError, AsyncOpenAI, OpenAIError
 
 from src.config import Settings
+
+
+class UpstreamModelError(RuntimeError):
+    """LiteLLM alias / upstream vLLM is unreachable or returned a fatal error."""
+
+    def __init__(self, model: str, *, role: str, cause: BaseException) -> None:
+        self.model = model
+        self.role = role
+        self.cause = cause
+        tip = (
+            "Check that LiteLLM is up and its route for this alias points at a "
+            "running vLLM (for domain-ft: fine-tuning node :8001)."
+        )
+        super().__init__(
+            f"{role} model '{model}' is not reachable via LiteLLM. {tip}"
+        )
+
+
+def _is_unreachable(exc: BaseException) -> bool:
+    """True when LiteLLM/proxy cannot reach the upstream model backend."""
+    if isinstance(exc, (APIConnectionError, httpx.ConnectError, httpx.TimeoutException)):
+        return True
+    text = str(exc).lower()
+    markers = (
+        "connection error",
+        "connecterror",
+        "failed to connect",
+        "connection refused",
+        "name or service not known",
+        "nodename nor servname",
+        "timed out",
+        "timeout",
+    )
+    if any(m in text for m in markers):
+        return True
+    if isinstance(exc, APIStatusError) and exc.status_code in {500, 502, 503, 504}:
+        # LiteLLM wraps upstream connection failures as 500 InternalServerError.
+        return any(m in text for m in markers) or "model group" in text
+    return False
 
 
 class LLMClients:
@@ -61,6 +100,13 @@ class LLMClients:
             return {}
         return {"chat_template_kwargs": {"enable_thinking": False}}
 
+    def _reraise_unreachable(
+        self, exc: BaseException, *, model: str, role: str
+    ) -> NoReturn:
+        if _is_unreachable(exc):
+            raise UpstreamModelError(model, role=role, cause=exc) from exc
+        raise exc
+
     async def aclose(self) -> None:
         await self._client.close()
         if not self._http.is_closed:
@@ -73,8 +119,9 @@ class LLMClients:
         tools: list[dict[str, Any]] | None = None,
     ) -> Any:
         """Call LiteLLM alias BRAIN_MODEL (default: agent-brain → Qwen)."""
+        model = self.settings.brain_model
         kwargs: dict[str, Any] = {
-            "model": self.settings.brain_model,
+            "model": model,
             "messages": messages,
             "temperature": self.settings.temperature_brain,
             "max_tokens": self.settings.max_tokens_brain,
@@ -83,7 +130,10 @@ class LLMClients:
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = "auto"
-        return await self._client.chat.completions.create(**kwargs)
+        try:
+            return await self._client.chat.completions.create(**kwargs)
+        except OpenAIError as exc:
+            self._reraise_unreachable(exc, model=model, role="Brain")
 
     async def synthesize(self, prompt: str, *, system: str | None = None) -> str:
         """
@@ -96,27 +146,30 @@ class LLMClients:
         mode = self.settings.domain_predict_mode
         model = self.settings.domain_ft_model
 
-        if mode == "completion":
-            full = prompt if system is None else f"{system}\n\n{prompt}"
-            resp = await self._client.completions.create(
+        try:
+            if mode == "completion":
+                full = prompt if system is None else f"{system}\n\n{prompt}"
+                resp = await self._client.completions.create(
+                    model=model,
+                    prompt=full,
+                    temperature=self.settings.temperature_synthesis,
+                    max_tokens=self.settings.max_tokens_synthesis,
+                    extra_body=self._extra_body(),
+                )
+                return (resp.choices[0].text or "").strip()
+
+            messages: list[dict[str, str]] = []
+            if system:
+                messages.append({"role": "system", "content": system})
+            messages.append({"role": "user", "content": prompt})
+            resp = await self._client.chat.completions.create(
                 model=model,
-                prompt=full,
+                messages=messages,
                 temperature=self.settings.temperature_synthesis,
                 max_tokens=self.settings.max_tokens_synthesis,
                 extra_body=self._extra_body(),
             )
-            return (resp.choices[0].text or "").strip()
-
-        messages: list[dict[str, str]] = []
-        if system:
-            messages.append({"role": "system", "content": system})
-        messages.append({"role": "user", "content": prompt})
-        resp = await self._client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=self.settings.temperature_synthesis,
-            max_tokens=self.settings.max_tokens_synthesis,
-            extra_body=self._extra_body(),
-        )
-        content = resp.choices[0].message.content
-        return (content or "").strip()
+            content = resp.choices[0].message.content
+            return (content or "").strip()
+        except OpenAIError as exc:
+            self._reraise_unreachable(exc, model=model, role="Domain-ft / Nemotron")

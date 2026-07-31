@@ -1,7 +1,17 @@
 """
-Async FastAPI entrypoint.
+Async FastAPI entrypoint for the financial Q&A agent.
 
 Workflow: POST /query → Qwen Agent ⇄ Tools → Fine-tuned Synthesis → response
+
+Responsibilities of this module (everything else is delegated):
+
+- **Startup / shutdown** (``lifespan``): build the TFQL store, register
+  tools, create the shared LLM clients and the compiled LangGraph workflow.
+- **HTTP surface**: ``GET /health`` (readiness gate) and ``POST /query``.
+- **Backpressure**: a semaphore caps in-flight queries at
+  ``max_concurrent_queries`` while still allowing the required ≥3.
+
+See ARCHITECTURE.md for the full system and graph diagrams.
 """
 
 from __future__ import annotations
@@ -16,7 +26,7 @@ from fastapi import FastAPI, HTTPException
 
 from src.config import Settings, get_settings
 from src.graph.workflow import QueryWorkflow
-from src.llm.client import LLMClients
+from src.llm.client import LLMClients, UpstreamModelError
 from src.models import HealthResponse, QueryRequest, QueryResponse, ToolTraceItem
 from src.tfql import Store
 from src.tools import register_all_tools, registry
@@ -27,8 +37,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger("app")
 
+_RED = "\033[31m"
+_BOLD = "\033[1m"
+_RESET = "\033[0m"
+
+
+def _log_red(message: str) -> None:
+    """Print a bold-red error line to the agent server terminal."""
+    logger.error("%s%s%s%s", _RED, _BOLD, message, _RESET)
+
 
 class AppState:
+    """Singletons created during startup and shared by every request."""
+
     settings: Settings
     llm: LLMClients
     workflow: QueryWorkflow
@@ -114,6 +135,9 @@ async def query(body: QueryRequest) -> QueryResponse:
     try:
         async with state.query_semaphore:
             result: dict[str, Any] = await state.workflow.run(question)
+    except UpstreamModelError as exc:
+        _log_red(str(exc))
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         logger.exception("Query failed")
         raise HTTPException(status_code=502, detail=f"Upstream / workflow error: {exc}") from exc
