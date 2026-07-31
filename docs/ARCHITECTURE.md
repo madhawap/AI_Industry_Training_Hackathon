@@ -1,10 +1,6 @@
 # Wombots — Architecture, Fine-Tuning & Design Decisions
 
 *A financial question-answering agent for the AI Industry Training Hackathon.*
-
-> **Branch documented:** `wombots-dev`
-> **One line:** A three-model agent (Qwen plans → deterministic Python computes → fine-tuned Nemotron writes) that answers exact-value financial questions over RBA, ASX, and AFR data inside a 60-second budget.
-
 ---
 
 ## Table of Contents
