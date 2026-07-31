@@ -11,7 +11,7 @@
       "question_type"
     ],
     "name": "jsonl_generic",
-    "path": "../data/generated_questions.jsonl",
+    "path": "../data/generated_questions_large.jsonl",
     "target_field": "answer",
     "task_field": "category"
   },
@@ -47,7 +47,7 @@
       "provider": "anthropic"
     }
   },
-  "name": "generated",
+  "name": "generated_large",
   "predict": {
     "batch_size": 4,
     "include_checkpoints": true,

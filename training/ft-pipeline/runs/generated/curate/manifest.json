@@ -1,8 +1,8 @@
 {
   "stage": "curate",
   "run_id": "generated",
-  "timestamp": "2026-07-31T15:21:50",
-  "git_revision": "c3aea85",
+  "timestamp": "2026-07-31T15:43:12",
+  "git_revision": "565af4a",
   "inputs": {
     "canonical": "/home/cognitivo_g06/team-wombots-repos/AI_Industry_Training_Hackathon/training/ft-pipeline/runs/generated/ingest/canonical.jsonl",
     "splits": [
