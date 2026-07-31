@@ -21,14 +21,20 @@
 # training/ft-pipeline/README.md "Models").
 name: generated
 run_id: auto
-seed: 0
+seed: 2                          # NOT arbitrary. `curate` shuffles template
+                                 # families by this seed, and at seed 0 the val
+                                 # split came out 100% `answerable` -- so
+                                 # `select`, which reads val metrics, was blind
+                                 # to the refusal and extrapolation behaviour.
+                                 # Seed 2 puts all three categories in val (see
+                                 # the note under `curate`).
 
 adapter:
   name: jsonl_generic
   path: ../data/generated_questions.jsonl
   task_field: category                      # answerable / unanswerable / extrapolation -> stratification label
-  target_field: answer
-  input_fields: [prompt, tool_trace, derivation_methodology]   # copied verbatim into `inputs`
+  target_field: reference_answer
+  input_fields: [prompt, tool_trace]        # copied verbatim into `inputs`
   eval_field: required_facts                # flat list of gold facts -> eval.components
   group_field: template_family              # split on template, not row -- see generate_training_data.py
 
@@ -38,12 +44,23 @@ renderer:
   user_template: |-
     QUESTION: {prompt}
     TOOL_TRACE: {tool_trace}
-    METHOD: {derivation_methodology}
   strict: true
 
 curate:
   group_key: meta.group_key
-  splits: [0.8, 0.1, 0.1]
+  splits: [0.7, 0.15, 0.15]      # was [0.8, 0.1, 0.1], which left val with only
+                                 # 2 of 29 families (n=11) -- too few to select a
+                                 # checkpoint on, and at 0.8/0.1/0.1 NO seed in
+                                 # 0..39 yields a val split covering all three
+                                 # categories, because unanswerable and
+                                 # extrapolation live in a handful of families.
+                                 # 0.7/0.15/0.15 + seed 2 gives:
+                                 #   train n=86 / 20 families (71/6/9)
+                                 #   val   n=21 /  4 families (18/2/1)
+                                 #   test  n=19 /  5 families (17/2/0)
+                                 # The seed was chosen on category COVERAGE, not
+                                 # on any metric. Group-aware splitting still
+                                 # holds -- no family spans two splits.
 
 render:
   measure_with_tokenizer: true
@@ -52,8 +69,25 @@ train:
   backend: peft
   model_id: nvidia/Llama-3.1-Nemotron-Nano-8B-v1
   dtype: bfloat16
-  device_map: auto
-  seq_len: 1536                  # measured p95 (real Nemotron tokenizer, not char-estimate) via: ftpipe.cli stage render --config config/generated.yaml
+  device_map: {"": 0}            # NOT `auto`. `auto` is for sharding a model too
+                                 # big for one GPU across devices/CPU/disk: when
+                                 # it cannot place every layer it leaves some on
+                                 # the `meta` device, and training then dies at
+                                 # step 0 with
+                                 #   RuntimeError: Tensor on device cuda:0 is not
+                                 #   on the expected device meta!
+                                 # {"": 0} puts the whole model on GPU 0, so a
+                                 # model that does not fit fails with a plain
+                                 # CUDA OOM instead of a confusing meta error.
+  seq_len: 1792                  # measured with the real Nemotron tokenizer via:
+                                 #   ftpipe.cli stage render --config config/generated.yaml
+                                 # train p50 329 / p95 1062 / max 1571; val p95 1198.
+                                 # render's `suggested_seq_len` is 1536 because it
+                                 # rounds up the largest per-split p95 -- but train's
+                                 # max is 1571, so 1536 clips the tail (the ANSWER,
+                                 # which sits last) off the longest example. 1792
+                                 # covers every row. Drop to 1536 if VRAM is tight;
+                                 # that truncates 1 row in 107.
   lora: {rank: 32, alpha: 64, dropout: 0.05, target_modules: all-linear, use_dora: true, use_rslora: true}
   optim:
     steps: 100                   # organisers' reference baseline (see config/nemotron.yaml)
@@ -68,14 +102,20 @@ train:
 predict:
   split: val
   include_checkpoints: true
-  max_new_tokens: 96
+  max_new_tokens: 128            # gold answers measure p50 43 / p95 74 / max 113
+                                 # tokens, so 96 truncated 2 of 126 -- and a
+                                 # truncated answer loses components it would
+                                 # otherwise have scored.
   temperature: 0.0
   batch_size: 4
 
 evaluate:
   graders: [component_match, format_health, exact_match, reference_overlap]
   component_match: {numeric_tolerance: 0.0, date_equivalence: true}
-  format_health: {max_chars: 400}
+  format_health: {max_chars: 600}   # longest gold answer is 364 chars, so 400 was
+                                    # close enough to flag correct answers as
+                                    # over_length -- and over_length_rate feeds
+                                    # the selection guardrails.
 
 select:
   policy: guardrailed
