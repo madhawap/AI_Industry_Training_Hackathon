@@ -143,6 +143,14 @@ class PeftBackend:
         loss_fn = _registry.get("loss", loss_cfg.get("name", "masked_ce"))(loss_cfg)
 
         every = int(self.cfg.get("checkpoint_every", 20))
+        # report_to=["tensorboard"] (set in config, not hardcoded) writes event
+        # files incrementally *during* training -- unlike log_history.json
+        # below, which is only written once trainer.train() returns -- so
+        # `tensorboard --logdir <logging_dir>` gives a live-updating loss
+        # curve while a run is in progress. Needs the `tensorboard` package;
+        # empty list (the old behaviour) needs nothing extra.
+        report_to = self.cfg.get("report_to", [])
+        logging_dir = str(Path(out_dir) / "tensorboard") if report_to else None
         args = TrainingArguments(
             output_dir=str(out_dir),
             max_steps=int(optim.get("steps", 100)),
@@ -152,11 +160,12 @@ class PeftBackend:
             warmup_steps=int(optim.get("warmup", 10)),
             lr_scheduler_type=optim.get("scheduler", "cosine"),
             logging_steps=max(1, every // 4),
+            logging_dir=logging_dir,
             save_strategy="steps",
             save_steps=every,
             save_total_limit=None,
             bf16=True,
-            report_to=[],
+            report_to=report_to,
             seed=int(self.cfg.get("seed", 0)),
             # NEFTune (Jain et al. 2023): noises the embeddings during training only —
             # free instruction-tuning quality bump, no inference cost. null disables it.

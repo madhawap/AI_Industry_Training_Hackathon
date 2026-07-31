@@ -39,13 +39,19 @@ def run(cfg: dict, run: Run) -> dict:
     outputs = {"checkpoints": checkpoints}
     if log_history_path.is_file():
         outputs["log_history"] = str(log_history_path)
+    # Only exists if train.report_to includes "tensorboard" -- unlike
+    # log_history.json, these event files update *during* training, so this
+    # is the path to point `tensorboard --logdir` at for a live loss curve.
+    tb_dir = out_dir / "tensorboard"
+    if tb_dir.is_dir():
+        outputs["tensorboard_logdir"] = str(tb_dir)
 
     run.write_manifest(
         "train",
         inputs={"rendered_train": rendered, "backend": train_cfg.get("backend"),
                 "model_id": train_cfg.get("model_id"), "lora": train_cfg.get("lora"),
                 "optim": train_cfg.get("optim"), "seq_len": train_cfg.get("seq_len"),
-                "loss": train_cfg.get("loss")},
+                "loss": train_cfg.get("loss"), "report_to": train_cfg.get("report_to")},
         outputs=outputs,
     )
     return {"backend": train_cfg.get("backend"), "n_checkpoints": len(checkpoints),

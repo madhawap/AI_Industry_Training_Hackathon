@@ -18,6 +18,11 @@ accelerate>=1.0
 datasets>=3.0
 huggingface_hub
 
+# `train.report_to: [tensorboard]` — live loss curve while training runs
+# (event files update incrementally, unlike log_history.json which is only
+# written once training finishes). [] needs nothing extra here.
+tensorboard
+
 # `evaluate.graders: [..., reference_overlap]` — ROUGE-L / BLEU on top of the
 # always-available token_f1. Optional: reference_overlap runs without these,
 # it just skips rougeL/bleu and warns once.

@@ -100,6 +100,12 @@ train:
   # that contain a digit -- the numbers/dates component_match and the
   # challenge's own judge actually grade -- by 50% relative to prose tokens.
   loss: {name: masked_ce, label_smoothing: 0.0, fact_token_weight: 1.5}
+  # Live training visualisation: event files update DURING training (unlike
+  # log_history.json, written once at the end). Watch with, in a second
+  # terminal while `train` is running:
+  #   tensorboard --logdir runs/generated/train/tensorboard --port 6006
+  # Needs the `tensorboard` package (see requirements.txt); [] needs nothing extra.
+  report_to: [tensorboard]
 
 predict:
   split: val
