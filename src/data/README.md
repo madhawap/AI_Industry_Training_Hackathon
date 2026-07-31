@@ -86,6 +86,34 @@ python3 query_tools.py [db_path]   # runs a demo of every function
 
 See [TOOLS.md](TOOLS.md) for the full catalog of functions, arguments, and examples.
 
+### generate_training_data.py
+
+Generates fine-tuning training examples (question, grounded answer, `tool_trace`) at scale by
+actually running `src.tfql`'s `execute_plan` against `warehouse.duckdb` — the same executor and
+operation registry the production agent uses — instead of asking a model to invent facts or
+tool traces. Every answer is a template rendered from real computed values; every `tool_trace`
+entry is a real `execute_plan` call and its real result, including real `TFQLError`s where a
+question intentionally falls outside the data.
+
+Produces three categories in one output file:
+
+- **answerable** — single- and cross-dataset questions across RBA, ASX and AFR the data supports.
+- **unanswerable** — coverage gaps, unknown tickers, out-of-range dates. The underlying operation
+  is actually called and actually fails (`DATE_OUTSIDE_COVERAGE`, `UNKNOWN_TICKER`,
+  `NO_MATCHING_RECORDS`); the answer states the refusal using the real coverage bounds read from
+  the store, not a guessed cutoff.
+- **extrapolation** — prediction/forecast framing (future rates, future prices, "will X happen").
+  The answer grounds itself in the last real observation the data contains, then explicitly
+  declines to invent a forecast, per the challenge brief's rule against inventing figures.
+
+```
+# From the root directory, after building warehouse.duckdb (see Quickstart above)
+python3 -m src.data.generate_training_data --warehouse ./warehouse.duckdb --out training/data/generated_questions.jsonl
+```
+
+Run as a module (`-m`), not a script, so `src.tfql` resolves as a package. Output schema and
+regeneration notes: [training/data/README.md](../../training/data/README.md).
+
 ## Data Curation Process
 
 This section documents how the original example/mock dataset (used to shape the schema and mock questions below) was generated, before the approved `data set/` — the real dataset the pipeline now ingests — was added.

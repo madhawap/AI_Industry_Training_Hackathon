@@ -85,13 +85,18 @@ class PeftBackend:
 
     # -- training ------------------------------------------------------------
     def train(self, rendered_path: Path, out_dir: Path) -> list[dict]:
+        import json as _json
+
         import torch
         from datasets import Dataset
         from peft import LoraConfig, get_peft_model
         from transformers import AutoModelForCausalLM, Trainer, TrainingArguments
 
+        from ftpipe import registry as _registry
+
         lora_cfg = self.cfg.get("lora", {})
         optim = self.cfg.get("optim", {})
+        loss_cfg = self.cfg.get("loss", {}) or {}
         max_len = int(self.cfg["seq_len"])
 
         tok = self._tokenizer()
@@ -120,9 +125,22 @@ class PeftBackend:
                 # rsLoRA (Kalajdzievski 2023) fixes LoRA's rank scaling so higher ranks
                 # don't blow up the update magnitude.
                 use_rslora=bool(lora_cfg.get("use_rslora", False)),
+                # init_lora_weights: True is the reference implementation's zero-init
+                # (B=0, so LoRA is a no-op before training). "pissa" (Meng et al. 2024)
+                # initialises A/B from the base weight's principal singular
+                # vectors/values instead, which the paper reports converges faster and
+                # ends up at a better optimum than zero-init at the same rank/cost --
+                # also accepts "eva", "olora", "gaussian", or True/False for the prior
+                # defaults; see the peft LoraConfig docstring for the full set.
+                init_lora_weights=lora_cfg.get("init_lora_weights", True),
             ),
         )
         model.print_trainable_parameters()
+
+        # Loss is a named, swappable plugin (default "masked_ce" == the plain
+        # masked cross-entropy transformers already computes internally when
+        # unconfigured; see ftpipe/losses.py for the two opt-in research knobs).
+        loss_fn = _registry.get("loss", loss_cfg.get("name", "masked_ce"))(loss_cfg)
 
         every = int(self.cfg.get("checkpoint_every", 20))
         args = TrainingArguments(
@@ -144,13 +162,24 @@ class PeftBackend:
             # free instruction-tuning quality bump, no inference cost. null disables it.
             neftune_noise_alpha=optim.get("neftune_noise_alpha"),
         )
-        trainer = Trainer(
+        LossTrainer = _make_loss_trainer()
+        trainer = LossTrainer(
             model=model,
             args=args,
             train_dataset=dataset,
             data_collator=_PadCollator(tok.pad_token_id),
+            loss_fn=loss_fn,
+            loss_tokenizer=tok,
         )
         trainer.train()
+
+        # Training-progress curve: Trainer's own step-by-step log, otherwise
+        # discarded once the process exits. Written next to the checkpoints so
+        # a run's loss-over-steps is reproducible from disk, not just the
+        # console this run happened to print to.
+        (Path(out_dir) / "log_history.json").write_text(
+            _json.dumps(trainer.state.log_history, indent=2, default=str)
+        )
 
         checkpoints = []
         for path in sorted(Path(out_dir).glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1])):
@@ -197,6 +226,29 @@ class PeftBackend:
                 new_tokens = generated[i][enc["input_ids"].shape[1]:]
                 outputs.append(tok.decode(new_tokens, skip_special_tokens=True))
         return outputs
+
+
+def _make_loss_trainer():
+    """`transformers.Trainer` subclass whose `compute_loss` routes through a
+    named `ftpipe.losses` plugin instead of the model class's built-in loss.
+    Built lazily (not a module-level class) so importing `ftpipe.backends`
+    never requires transformers to be installed -- only actually training
+    does, same as every other transformers/peft/torch import in this file."""
+    from transformers import Trainer
+
+    class _LossTrainer(Trainer):
+        def __init__(self, *args, loss_fn=None, loss_tokenizer=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._loss_fn = loss_fn
+            self._loss_tokenizer = loss_tokenizer
+
+        def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+            labels = inputs.pop("labels")
+            outputs = model(**inputs)
+            loss = self._loss_fn(outputs.logits, labels, self._loss_tokenizer)
+            return (loss, outputs) if return_outputs else loss
+
+    return _LossTrainer
 
 
 class _PadCollator:

@@ -16,6 +16,12 @@ Config:
       input_fields: [question, query_context]   # copied into `inputs` verbatim
       eval_field: grading_components       # optional -> eval.components
       group_field: null                    # optional -> meta.group_key
+      meta_fields: [difficulty, question_type]  # optional -> meta.<field>, verbatim
+
+`task_field` is singular (one stratification label), so `meta_fields` exists
+for everything else worth slicing metrics by later without overloading
+`task` -- e.g. `evaluate.breakdown_by` (see stages/evaluate.py) reads
+`rec.meta` for exactly these keys.
 """
 
 from __future__ import annotations
@@ -57,6 +63,7 @@ def load(cfg: dict) -> list[Record]:
     task_default = cfg.get("task_default", "default")
     eval_field = cfg.get("eval_field")
     group_field = cfg.get("group_field")
+    meta_fields = cfg.get("meta_fields") or []
 
     rows = _load_rows(path)
     records = []
@@ -84,6 +91,7 @@ def load(cfg: dict) -> list[Record]:
                     # Without a group field every row is its own group, which is
                     # the safe default (no accidental leakage, just less pooling).
                     "group_key": str(row.get(group_field)) if group_field and group_field in row else f"row:{i}",
+                    **{f: row[f] for f in meta_fields if f in row},
                 },
             )
         )

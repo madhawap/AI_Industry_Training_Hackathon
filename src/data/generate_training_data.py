@@ -1176,11 +1176,21 @@ def build_record(store: Store, case: Case) -> dict[str, Any] | None:
     # this gives ft-pipeline's curate stage a `group_key` to split on instead.
     template_family = "-".join(case.id.split("-")[:3])
 
+    # The TFQL operation(s) actually invoked -- a finer-grained, semantically
+    # meaningful "question type" than template_family (which is id-derived
+    # and mixes dataset+op+naming). Single-op questions get the bare op name
+    # (e.g. "asx.max_drawdown"); multi-op plans (the cross-dataset year
+    # summaries) get all op names joined, since no single one characterizes
+    # the question shape.
+    op_names = [o.op for o in case.ops]
+    question_type = op_names[0] if len(op_names) == 1 else "+".join(op_names)
+
     return {
         "schema_version": "gen-1.0",
         "generation_method": "tfql_execute_plan_over_real_warehouse",
         "id": case.id,
         "template_family": template_family,
+        "question_type": question_type,
         "category": case.category,
         "verification_status": "auto_generated",
         "difficulty": case.difficulty,

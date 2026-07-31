@@ -16,6 +16,7 @@ _REGISTRY: dict[str, dict[str, Any]] = {
     "grader": {},
     "policy": {},
     "backend": {},
+    "loss": {},
 }
 
 # Modules to import so their @register decorators run. Add new implementations
@@ -31,6 +32,7 @@ _MODULES = [
     "ftpipe.graders.llm_judge",
     "ftpipe.policies.guardrailed",
     "ftpipe.backends",
+    "ftpipe.losses",
 ]
 
 _loaded = False

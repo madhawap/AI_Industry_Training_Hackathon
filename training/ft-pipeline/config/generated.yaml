@@ -33,10 +33,11 @@ adapter:
   name: jsonl_generic
   path: ../data/generated_questions.jsonl
   task_field: category                      # answerable / unanswerable / extrapolation -> stratification label
-  target_field: reference_answer
+  target_field: answer
   input_fields: [prompt, tool_trace]        # copied verbatim into `inputs`
   eval_field: required_facts                # flat list of gold facts -> eval.components
   group_field: template_family              # split on template, not row -- see generate_training_data.py
+  meta_fields: [difficulty, question_type]  # -> meta.difficulty / meta.question_type, read by evaluate.breakdown_by below
 
 renderer:
   name: chat
@@ -69,26 +70,21 @@ train:
   backend: peft
   model_id: nvidia/Llama-3.1-Nemotron-Nano-8B-v1
   dtype: bfloat16
-  device_map: {"": 0}            # NOT `auto`. `auto` is for sharding a model too
-                                 # big for one GPU across devices/CPU/disk: when
-                                 # it cannot place every layer it leaves some on
-                                 # the `meta` device, and training then dies at
-                                 # step 0 with
-                                 #   RuntimeError: Tensor on device cuda:0 is not
-                                 #   on the expected device meta!
-                                 # {"": 0} puts the whole model on GPU 0, so a
-                                 # model that does not fit fails with a plain
-                                 # CUDA OOM instead of a confusing meta error.
-  seq_len: 1792                  # measured with the real Nemotron tokenizer via:
-                                 #   ftpipe.cli stage render --config config/generated.yaml
-                                 # train p50 329 / p95 1062 / max 1571; val p95 1198.
-                                 # render's `suggested_seq_len` is 1536 because it
-                                 # rounds up the largest per-split p95 -- but train's
-                                 # max is 1571, so 1536 clips the tail (the ANSWER,
-                                 # which sits last) off the longest example. 1792
-                                 # covers every row. Drop to 1536 if VRAM is tight;
-                                 # that truncates 1 row in 107.
-  lora: {rank: 32, alpha: 64, dropout: 0.05, target_modules: all-linear, use_dora: true, use_rslora: true}
+  device_map: {"": 0}
+  seq_len: 1792                  # measured p95 (real Nemotron tokenizer, not char-estimate) via: ftpipe.cli stage render --config config/generated.yaml
+  lora:
+    rank: 32
+    alpha: 64
+    dropout: 0.05
+    target_modules: all-linear
+    use_dora: true
+    use_rslora: true
+    # PiSSA (Meng et al. 2024, https://huggingface.co/papers/2404.02948): initialises
+    # LoRA A/B from the base weight's principal singular vectors/values instead of
+    # the reference implementation's zero-init (B=0). Reported to converge faster and
+    # reach a better optimum at the same rank/cost -- relevant here since optim.steps
+    # is only 100. Falls back to `true` (zero-init) if you want the prior behaviour.
+    init_lora_weights: pissa
   optim:
     steps: 100                   # organisers' reference baseline (see config/nemotron.yaml)
     lr: 5.0e-5
@@ -98,6 +94,12 @@ train:
     scheduler: cosine
     neftune_noise_alpha: 5.0
   checkpoint_every: 20
+  # Named, swappable loss (see ftpipe/losses.py). label_smoothing=0 and
+  # fact_token_weight=1.0 would be identical to the plain masked CE
+  # transformers computes internally; fact_token_weight=1.5 upweights tokens
+  # that contain a digit -- the numbers/dates component_match and the
+  # challenge's own judge actually grade -- by 50% relative to prose tokens.
+  loss: {name: masked_ce, label_smoothing: 0.0, fact_token_weight: 1.5}
 
 predict:
   split: val
@@ -110,12 +112,17 @@ predict:
   batch_size: 4
 
 evaluate:
-  graders: [component_match, format_health, exact_match, reference_overlap]
+  # llm_judge requires ANTHROPIC_API_KEY (or OPENAI_API_KEY with provider: openai)
+  # set in the environment before running this stage -- it is not set in this
+  # sandbox. It costs one network call + tokens per prediction; the only grader
+  # here that can catch hallucination independent of phrasing/number overlap.
+  graders: [component_match, format_health, exact_match, reference_overlap, llm_judge]
   component_match: {numeric_tolerance: 0.0, date_equivalence: true}
-  format_health: {max_chars: 600}   # longest gold answer is 364 chars, so 400 was
-                                    # close enough to flag correct answers as
-                                    # over_length -- and over_length_rate feeds
-                                    # the selection guardrails.
+  format_health: {max_chars: 600}
+  llm_judge: {provider: anthropic, model: claude-sonnet-5}
+  # Per-slice metrics in addition to per_task (task = category here) -- see
+  # ftpipe/stages/evaluate.py's per_breakdown output.
+  breakdown_by: [difficulty, question_type]
 
 select:
   policy: guardrailed
