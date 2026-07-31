@@ -1,12 +1,133 @@
 # ft-pipeline
 
-A staged, contract-agnostic fine-tuning pipeline. Built so that the parts we
-_have_ decided (LoRA, checkpoint selection, splitting, evidence) can be built
-and tested **before** the parts we have not (tool-result schema, prompt format,
-grading contract, serving system prompt).
+Fine-tunes the hackathon model (`nvidia/Llama-3.1-Nemotron-Nano-8B-v1`) with **LoRA**
+on the finance-agent's own generated Q&A/tool-trace data, then hands the winning
+checkpoint off to be merged and served. This README explains what the pipeline does
+end to end, what's actually been run so far, and how to run it yourself.
 
 Method is **LoRA** — the base model's weights are frozen and a small adapter
-(tens of MB) is trained alongside them.
+(tens of MB) is trained alongside them. The pipeline itself is staged and
+**contract-agnostic**: it's built so the parts we _have_ decided (LoRA,
+checkpoint selection, splitting, evidence) can be built and tested **before**
+the parts we haven't (tool-result schema, prompt format, grading contract,
+serving system prompt).
+
+## The end-to-end picture
+
+```mermaid
+flowchart LR
+    subgraph DATA["training/data — see generate_training_data.py"]
+        A["data set/ (RBA, ASX, AFR)"] --> B[warehouse.duckdb]
+        B --> C["generate_training_data.py\n(runs the real TFQL executor)"]
+        C --> D[generated_questions.jsonl]
+    end
+
+    subgraph PIPE["ft-pipeline — this directory, the eight stages"]
+        D --> E[ingest]
+        E --> F[curate]
+        F --> G[render]
+        G --> H[train]
+        H --> I[predict]
+        I --> J[evaluate]
+        J --> K[select]
+        K --> L[export]
+    end
+
+    subgraph SERVE["scripts/ — bring the winner online"]
+        L --> M["merge-adapter.sh\n(fold LoRA into base, CPU)"]
+        M --> N["run-vllm.sh\n(serve merged model, GPU)"]
+        N --> O["agent -> submission.json"]
+    end
+```
+
+Nothing here is invented or hand-labelled: `generate_training_data.py` answers
+every training question by actually calling `src.tfql`'s `execute_plan` against
+`warehouse.duckdb` — the same executor and operations the production agent
+uses — so a wrong number in the training data would mean a bug in an operation
+already covered by `src/tests/`, not a model or a human guessing. See
+[`training/data/README.md`](../data/README.md) for how that corpus is built.
+
+## The data
+
+[`training/data/generated_questions.jsonl`](../data/generated_questions.jsonl) is
+what `config/generated.yaml` (the config for the real fine-tune) trains on: 126
+rows across 29 template families, split into three categories — the model has to
+learn to answer, to refuse when the data doesn't cover the question, and to
+decline forecasts rather than invent them:
+
+![Generated dataset by category](docs/images/dataset_categories.png)
+
+A much larger corpus, [`generated_questions_large.jsonl`](../data/generated_questions_large.jsonl)
+(939 rows, 32 template families), landed most recently and is not yet wired into
+any config — `config/generated.yaml` still points at the 126-row file, whose
+field map it's settled against. Swapping to the larger file only needs
+`adapter.path` updated once its field names are confirmed to match.
+
+`curate` never lets a template family straddle train/val/test — generated data is
+full of near-duplicates (same template, different ticker/date), and letting one
+leak across the split would make the val score fiction:
+
+![Group-aware train/val/test split](docs/images/split_sizes.png)
+
+## The eight stages
+
+| stage      | in → out                                    | decides                       |
+| ---------- | ------------------------------------------- | ----------------------------- |
+| `ingest`   | raw → `canonical.jsonl`                     | which source adapter          |
+| `curate`   | canonical → `train/val/test`                | dedupe, **group-aware** split |
+| `render`   | canonical → messages + **length report**    | prompt format, seq-len budget |
+| `train`    | messages → LoRA checkpoints                 | backend, hyperparameters      |
+| `predict`  | base **and** every checkpoint → predictions | decoding                      |
+| `evaluate` | predictions × graders → metrics             | what "good" means             |
+| `select`   | metrics → chosen checkpoint + rationale     | shipping policy               |
+| `export`   | → evidence bundle                           | packaging                     |
+
+Every stage is file-in / file-out, so any stage can be re-run alone. `predict`
+(slow, GPU) is split from `evaluate` (fast, CPU) on purpose: grader definitions
+change often, and re-grading stored predictions costs seconds.
+
+`render` also measures real token length with the actual model tokenizer, which
+sets `train.seq_len` rather than leaving it guessed (that's exactly where OOM
+risk lives):
+
+![Rendered sequence length, train split](docs/images/seq_len.png)
+
+### Where the committed `runs/generated/` bundle currently stands
+
+`runs/generated/` (committed, since it's small enough to review) has been
+carried through `ingest → curate → render → predict`, the last of those against
+the **base** model only — i.e. it proves the whole plumbing and gives a
+before-fine-tuning reference, but `train`/`evaluate`/`select`/`export` haven't
+been run against this data yet (`runs/generated/train/` is empty, and is
+git-ignored regardless — checkpoints don't belong in git).
+
+Separately, `config/nemotron.yaml` — same pipeline, pointed at the base model
+family via 200 synthetic **stub** records instead of real data — has been run
+for real, to shake out the GPU training path end to end. `checkpoint-100` from
+that run is what `scripts/merge-adapter.sh` merges by default, and what's
+currently served as `nemotron-8b-finance-merged` in [`submission.json`](../../submission.json).
+So the model behind the current submission has been proven through a real LoRA
+training loop on the actual hackathon model — the next step is pointing that
+same `train` stage at `config/generated.yaml`'s real, grounded data instead of
+the stub records.
+
+## From checkpoint to a served model
+
+A LoRA checkpoint is an adapter, not a servable model — it has no base weights
+of its own. Two scripts in [`../../scripts/`](../../scripts/README.md) take a
+`select`ed checkpoint the rest of the way:
+
+1. **`merge-adapter.sh`** folds the adapter into the base model (CPU-only,
+   ~10 min, runs inside `nvcr.io/nvidia/nemo:25.09` since the host has no
+   torch), producing a standalone model directory.
+2. **`run-vllm.sh`** serves that merged directory as an OpenAI-compatible
+   endpoint in Docker (`vllm-ft`, port 8001).
+
+Merging (rather than vLLM's `--enable-lora`) is required here specifically
+because the checkpoints set `use_dora=true`, which vLLM's runtime LoRA path
+rejects outright. The served endpoint and model name are exactly what
+[`submission.json`](../../submission.json) points the agent at — see
+`scripts/README.md` for the full quickstart and every configuration knob.
 
 ## Setup
 
@@ -97,16 +218,17 @@ CLI prints `⏸ undecided:` and the exact key name. Exit 1 is a real failure.
 ### Which config to start from
 
 | config                  | needs                | use it for                                                 |
-| ----------------------- | -------------------- | ---------------------------------------------------------- |
-| `config/skeleton.yaml`  | nothing              | first run, and after any change — proves the plumbing      |
-| `config/generated.yaml` | GPU + model download | **the real fine-tune** — 126 generated Q/A/tool-trace rows |
-| `config/nemotron.yaml`  | GPU + model download | real LoRA on stub records, for shaking out the GPU path    |
-| `config/mock.yaml`      | GPU + real data      | superseded by `generated.yaml` (see caveat)                |
+| ----------------------- | --------------------- | ----------------------------------------------------------- |
+| `config/skeleton.yaml`  | nothing               | first run, and after any change — proves the plumbing      |
+| `config/generated.yaml` | GPU + model download  | **the real fine-tune** — 126 generated Q/A/tool-trace rows |
+| `config/nemotron.yaml`  | GPU + model download  | real LoRA on stub records — currently the source of the checkpoint that's actually merged & served |
+| `config/mock.yaml`      | GPU + real data       | superseded by `generated.yaml` (see caveat)                 |
 
-`config/generated.yaml` is the one to run for an actual fine-tune. It reads
-`../data/generated_questions.jsonl` (126 rows, 29 template families) and its
-field map is settled against that file, so it needs no edits. Note two things it
-had to work around, both worth re-checking if the data is regenerated:
+`config/generated.yaml` is the one to run for an actual fine-tune on real data.
+It reads `../data/generated_questions.jsonl` (126 rows, 29 template families)
+and its field map is settled against that file, so it needs no edits. Note two
+things it had to work around, both worth re-checking if the data is
+regenerated:
 
 - **`eval_field` must be `required_facts`, not `grading`.** `grading.components`
   is a list of _objects_; `component_match` compares components as strings, so
@@ -126,7 +248,7 @@ present in this repo**. Prefer `generated.yaml`; if you do want mock, update
 All optional:
 
 | var                                    | effect                                                                                                                                           |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------|
 | `FTPIPE_RUNS`                          | where run directories go (default `./runs`, git-ignored)                                                                                         |
 | `CUDA_VISIBLE_DEVICES`                 | pin the GPU. Must be an index `nvidia-smi` lists — an out-of-range index hides all GPUs and `train` dies with a misleading `bf16/gpu` ValueError |
 | `HF_HOME`                              | Hugging Face cache location — worth setting if `$HOME` is small (~6 GB for the 3B stand-in, ~16 GB for Nemotron)                                 |
@@ -179,23 +301,6 @@ if knowledge of the prompt format ever leaks outside `renderers/`:
 python tests/test_pipeline.py    # 20/20
 ```
 
-## The eight stages
-
-| stage      | in → out                                    | decides                       |
-| ---------- | ------------------------------------------- | ----------------------------- |
-| `ingest`   | raw → `canonical.jsonl`                     | which source adapter          |
-| `curate`   | canonical → `train/val/test`                | dedupe, **group-aware** split |
-| `render`   | canonical → messages + **length report**    | prompt format, seq-len budget |
-| `train`    | messages → LoRA checkpoints                 | backend, hyperparameters      |
-| `predict`  | base **and** every checkpoint → predictions | decoding                      |
-| `evaluate` | predictions × graders → metrics             | what "good" means             |
-| `select`   | metrics → chosen checkpoint + rationale     | shipping policy               |
-| `export`   | → evidence bundle                           | packaging                     |
-
-Every stage is file-in / file-out, so any stage can be re-run alone. `predict`
-(slow, GPU) is split from `evaluate` (fast, CPU) on purpose: grader definitions
-change often, and re-grading stored predictions costs seconds.
-
 ## The canonical record
 
 The one shape everything agrees on. `inputs` and `eval` are **opaque dicts** —
@@ -239,7 +344,8 @@ risk lives.
 `train.model_id` is the only line that changes:
 
 - `nvidia/Llama-3.1-Nemotron-Nano-8B-v1` — the hackathon model (ungated),
-  ~16 GB bf16. **What `config/nemotron.yaml` now uses.** Needs a mostly-free GPU.
+  ~16 GB bf16. **What `config/nemotron.yaml` and `config/generated.yaml` now use.**
+  Needs a mostly-free GPU.
 - `unsloth/Llama-3.2-3B-Instruct` — same Llama-3 architecture and chat template
   as the hackathon target, ~6 GB bf16, fits beside other jobs. Use for iteration.
 
@@ -254,21 +360,25 @@ python -c "import torch;f,t=torch.cuda.mem_get_info(0);print(f'{f/2**30:.1f} GiB
 
 ## LoRA/DoRA/rsLoRA/NEFTune, and the eval fallback chain
 
-`backends.py`'s `peft` backend and the graders mirror the techniques exercised
-in `../finetune_nemotron_updated.ipynb`, kept as config rather than hardcoded:
+`backends.py`'s `peft` backend and the graders are kept as config rather than
+hardcoded:
 
 - `train.lora.use_dora` / `use_rslora` — DoRA (Liu et al. 2024) and rsLoRA
-  (Kalajdzievski 2023), both `true` in `config/nemotron.yaml`.
+  (Kalajdzievski 2023), both `true` in `config/nemotron.yaml` and
+  `config/generated.yaml`.
 - `train.optim.neftune_noise_alpha` — NEFTune (Jain et al. 2023) embedding
   noise, training-only, `null` disables it.
-- `evaluate.graders` gained **`reference_overlap`** (token-F1 always;
+- `train.loss` (`ftpipe/losses.py`) — named, swappable loss.
+  `config/generated.yaml` sets `fact_token_weight: 1.5`, upweighting tokens
+  that contain a digit — the numbers/dates `component_match` and the
+  challenge's own judge actually grade — by 50% relative to prose tokens.
+- `evaluate.graders` includes **`reference_overlap`** (token-F1 always;
   ROUGE-L/BLEU too if `rouge-score`/`sacrebleu` are installed) — the fallback
-  that still scores something once `eval.components` is missing, same idea as
-  the notebook's `HAS_GRADING_COMPONENTS` branch, just always-on rather than
-  conditional, since `component_match` already scores `{}` (excluded from the
-  mean) when there are no components.
+  that still scores something once `eval.components` is missing, since
+  `component_match` already scores `{}` (excluded from the mean) when there
+  are no components.
 - **`llm_judge`** — groundedness/correctness/concision via Anthropic or
-  OpenAI, one call per prediction. Not in any default `graders` list (costs
+  OpenAI, one call per prediction. Not in every default `graders` list (costs
   network + an API key); opt in with:
   ```yaml
   evaluate:
@@ -288,11 +398,12 @@ ftpipe/
   backends.py    noop | peft (LoRA lives here)
   adapters/      raw -> canonical      [swap when schema lands]
   renderers/     canonical -> prompt   [swap when contract lands]
-  graders/       component_match, format_health, exact_match
+  graders/       component_match, format_health, exact_match, reference_overlap, llm_judge
   policies/      checkpoint selection
   stages/        the eight steps
-config/          skeleton.yaml, nemotron.yaml
-runs/<run_id>/   artifacts + manifests (git-ignored)
+config/          skeleton.yaml, generated.yaml, nemotron.yaml, mock.yaml
+docs/images/     charts embedded in this README, regenerate from runs/generated/*
+runs/<run_id>/   artifacts + manifests (checkpoints git-ignored, everything else committed)
 ```
 
 ## Relationship to other work

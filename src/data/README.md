@@ -4,7 +4,21 @@
 
 Scripts live directly in this directory (`src/data/`, no nested `scripts/` folder) and use paths relative to the current working directory (not the script's location) for their defaults, so run them from here, e.g. `python3 setup_duckdb.py`.
 
-Pipeline order: `../../data set/` (raw, at the repo root — two levels up from `src/data/`; note the space in the name, so quote it) → `normalize_dates.py` → `normalized/` (ISO dates) → `setup_duckdb.py` → `parquet/` + `warehouse.duckdb`.
+Pipeline order: `../../data set/` (raw, at the repo root — two levels up from `src/data/`; note the space in the name, so quote it) → `normalize_dates.py` → `normalized/` (ISO dates) → `setup_duckdb.py` → `parquet/` + `warehouse.duckdb`. From there, `generate_training_data.py` drives the warehouse through `src.tfql`'s real executor to produce fine-tuning JSONL.
+
+```mermaid
+flowchart LR
+    raw["../../data set/\n(AFR, ASX, RBA Rates)"] --> norm[normalize_dates.py]
+    norm --> normalized["normalized/\n(ISO dates)"]
+    normalized --> duck[setup_duckdb.py]
+    duck --> parquet["parquet/"]
+    duck --> wh[("warehouse.duckdb")]
+    wh --> test[test_queries.py]
+    wh --> qt[query_tools.py]
+    wh --> gen[generate_training_data.py\nTakes the public_questions.json]
+    gen -->|"src.tfql.execute_plan\n(real ops, real answers)"| jsonl1["training/data/\ngenerated_questions.jsonl"]
+    gen -->|"src.tfql.execute_plan\n(real ops, real answers)"| jsonl2["training/data/\ngenerated_questions_large.jsonl"]
+```
 
 ### Quickstart
 
@@ -93,9 +107,42 @@ actually running `src.tfql`'s `execute_plan` against `warehouse.duckdb` — the 
 operation registry the production agent uses — instead of asking a model to invent facts or
 tool traces. Every answer is a template rendered from real computed values; every `tool_trace`
 entry is a real `execute_plan` call and its real result, including real `TFQLError`s where a
-question intentionally falls outside the data.
+question intentionally falls outside the data. No question is ever asked without also running
+its plan, so a wrong number can only come from a bug in an operation already covered by
+`src/tests/` — never from a model guessing.
 
-Produces three categories in one output file:
+```
+# From the root directory, after building warehouse.duckdb (see Quickstart above)
+python3 -m src.data.generate_training_data --warehouse ./warehouse.duckdb --out training/data/generated_questions.jsonl
+```
+
+Run as a module (`-m`), not a script, so `src.tfql` resolves as a package.
+
+#### How a record is built
+
+```mermaid
+flowchart TD
+    subgraph Templates["case generators (one list of Case each)"]
+        direction LR
+        rba[gen_rba]
+        asx[gen_asx]
+        afr[gen_afr]
+        cross[gen_cross]
+        unans[gen_unanswerable]
+        extrap[gen_extrapolation]
+    end
+    store[("Store\n(warehouse.duckdb)")] --> Templates
+    Templates --> cases["all_cases: list[Case]\n(prompt + ops + render fn)"]
+    cases --> dedup{"id already\nseen?"}
+    dedup -->|yes| err["raise RuntimeError\n(fail the run)"]
+    dedup -->|no| plan["execute_plan(ops, store)\n== real tool_trace"]
+    plan --> render["case.render(bundle, store)\nformats the real returned fields"]
+    render -->|"render raises"| skip["skip case, log to stderr\n(never fabricate a fallback)"]
+    render -->|ok| record["JSONL record\n(prompt, answer, tool_trace,\ngrading components, ...)"]
+    record --> out[["--out file"]]
+```
+
+Each `Case` names one of three `category` values:
 
 - **answerable** — single- and cross-dataset questions across RBA, ASX and AFR the data supports.
 - **unanswerable** — coverage gaps, unknown tickers, out-of-range dates. The underlying operation
@@ -106,13 +153,36 @@ Produces three categories in one output file:
   The answer grounds itself in the last real observation the data contains, then explicitly
   declines to invent a forecast, per the challenge brief's rule against inventing figures.
 
-```
-# From the root directory, after building warehouse.duckdb (see Quickstart above)
-python3 -m src.data.generate_training_data --warehouse ./warehouse.duckdb --out training/data/generated_questions.jsonl
-```
+Two derived grouping keys ride along on every record, both used by
+`training/ft-pipeline/` to avoid near-duplicate templates leaking across a train/val/test split:
 
-Run as a module (`-m`), not a script, so `src.tfql` resolves as a package. Output schema and
-regeneration notes: [training/data/README.md](../../training/data/README.md).
+- `template_family` — the id's first three hyphen-separated tokens (e.g. `GEN-ASX-return-BHP.AX-2018`
+  and `GEN-ASX-return-CBA.AX-2021` both collapse to `GEN-ASX-return`).
+- `question_type` — the actual TFQL op(s) invoked (e.g. `asx.max_drawdown`, or `+`-joined for the
+  multi-op cross-dataset cases), a finer-grained cut than `template_family` since the id also
+  encodes dataset and naming choices.
+
+#### Existing outputs in `training/data/`
+
+Two generated files are already checked in, from two different sizes of run against the same
+generator:
+
+| file | records | category (answerable / unanswerable / extrapolation) | difficulty (easy / medium / hard) | scope (single / cross) | template families | question types |
+|---|---|---|---|---|---|---|
+| `generated_questions.jsonl` | 126 | 106 / 10 / 10 | 55 / 46 / 25 | 111 / 15 | 29 | 20 |
+| `generated_questions_large.jsonl` | 939 | 797 / 71 / 71 | 555 / 281 / 103 | 860 / 79 | 32 | 22 |
+
+`generated_questions_large.jsonl` is the current generator's output — it reflects the fuller set
+of window/ticker/date variations in the templates above (e.g. multiple RBA rate-extreme windows,
+a rank/volume comparison per year per ticker group). `generated_questions.jsonl` is a smaller,
+earlier snapshot with the same schema and categories but fewer window variations per template,
+kept as a lighter-weight sample. Counts drift as templates are added or expanded, so treat this
+table as a snapshot too — regenerate and read the script's stderr summary (it prints `category`,
+`difficulty`, and `scope` breakdowns on every run) rather than trusting either file as current
+forever.
+
+Output record schema, the `training/ft-pipeline/` config that consumes these files, and a
+worked example record: [training/data/README.md](../../training/data/README.md).
 
 ## Data Curation Process
 
